@@ -1102,6 +1102,15 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function( 
 		find: function( selector ) {
 			return this.element.find(selector);
 		},
+
+		// !-- FOUNDRY HACK --! //
+		// Quick access controller templates.
+		template: function( name ) {
+			var args = $.makeArray(arguments);
+			args[0] = this.options.template[name] || name;
+			return $.View.apply(this, args);
+		},
+
 		//tells callback to set called on this.  I hate this.
 		_set_called: true
 	});
