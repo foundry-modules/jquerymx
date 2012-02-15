@@ -377,43 +377,47 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function( 
 				 * default value.
 				 *
 				 *     $.Controller("Mxui.Layout.Fill",{
+				 *       isPlugin: true,
 				 *       pluginName: "fillWith"
 				 *     },{});
 				 *
 				 *     $("#foo").fillWith();
 				 */
-				pluginname = this.pluginName || this._fullName,
 				funcName, forLint;
 
-			// create jQuery plugin
-			if (!$.fn[pluginname] ) {
-				$.fn[pluginname] = function( options ) {
+			if (this.isPlugin) {
+				var pluginname = this.pluginName || this._fullName;
 
-					var args = makeArray(arguments),
-						//if the arg is a method on this controller
-						isMethod = typeof options == "string" && isFunction(controller[STR_PROTOTYPE][options]),
-						meth = args[0];
-					return this.each(function() {
-						//check if created
-						var controllers = data(this),
-							//plugin is actually the controller instance
-							plugin = controllers && controllers[pluginname];
+				// create jQuery plugin
+				if (!$.fn[pluginname] ) {
+					$.fn[pluginname] = function( options ) {
 
-						if ( plugin ) {
-							if ( isMethod ) {
-								// call a method on the controller with the remaining args
-								plugin[meth].apply(plugin, args.slice(1));
+						var args = makeArray(arguments),
+							//if the arg is a method on this controller
+							isMethod = typeof options == "string" && isFunction(controller[STR_PROTOTYPE][options]),
+							meth = args[0];
+						return this.each(function() {
+							//check if created
+							var controllers = data(this),
+								//plugin is actually the controller instance
+								plugin = controllers && controllers[pluginname];
+
+							if ( plugin ) {
+								if ( isMethod ) {
+									// call a method on the controller with the remaining args
+									plugin[meth].apply(plugin, args.slice(1));
+								} else {
+									// call the plugin's update method
+									plugin.update.apply(plugin, args);
+								}
+
 							} else {
-								// call the plugin's update method
-								plugin.update.apply(plugin, args);
+								//create a new controller instance
+								controller.newInstance.apply(controller, [this].concat(args));
 							}
-
-						} else {
-							//create a new controller instance
-							controller.newInstance.apply(controller, [this].concat(args));
-						}
-					});
-				};
+						});
+					};
+				}
 			}
 
 			// make sure listensTo is an array
