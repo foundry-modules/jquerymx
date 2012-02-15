@@ -348,9 +348,26 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function( 
 			if (!this.shortName || this.fullName == "Foundry.Controller" ) {
 				return;
 			}
+
 			// cache the underscored names
 			this._fullName = underscoreAndRemoveController(this.fullName);
 			this._shortName = underscoreAndRemoveController(this.shortName);
+
+			// !-- FOUNDRY HACK --! //
+			// If a prototype factory function was given instead of a prototype object,
+			// we expect the factory function to return the prototype object upon execution
+			// of the factory function. This factory function gets executed during the
+			// instantiation of the controller.
+
+			if (isFunction(this[STR_PROTOTYPE])) {
+
+				// Remap the factory function
+				this.protoFactory = this[STR_PROTOTYPE];
+
+				// Attempt to execute the prototype factory once to get
+				// a list of actions that we can cache first.
+				this[STR_PROTOTYPE] = this.protoFactory.call(this, null);
+			}
 
 			var controller = this,
 				/**
@@ -417,6 +434,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function( 
 				}
 			}
 		},
+
 		hookup: function( el ) {
 			return new this(el);
 		},
@@ -615,7 +633,20 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function( 
 		 * default it is called with the element and options passed to the controller.
 		 */
 		setup: function( element, options ) {
+
 			var funcName, ready, cls = this[STR_CONSTRUCTOR];
+
+			// !-- FOUNDRY HACK --! //
+			// Execute factory function if exists, extends the properties
+			// of the returned object onto the instance.
+			if (cls.protoFactory) {
+
+				// This is where "self" keyword is passed as first argument.
+				var proto = cls.protoFactory.call(cls, this);
+
+				// Extend the properties of the prototype object onto the instance.
+				$.extend(true, this, proto);
+			}
 
 			//want the raw element here
 			element = (typeof element == 'string' ? $(element) :
