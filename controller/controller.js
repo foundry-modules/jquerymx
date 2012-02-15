@@ -1179,8 +1179,31 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function( 
 		 */
 		controller: function( controller ) {
 			return this.controllers.apply(this, arguments)[0];
-		}
-	});
+		},
 
+		// !-- FOUNDRY HACK --! //
+		// Implement controller onto jQuery elements.
+		// $(el).implement(controller|controllerName);
+		implement: function( controller, options, callback ) {
+
+			var elements = this,
+				controllerName;
+
+			if (typeof controller === "string") {
+				controllerName = controller;
+				controller = $.String.getObject(controllerName);
+			};
+
+			if (controller !== undefined) {
+				$.each(elements, function() {
+					var instance = new controller(this, options);
+					callback && callback.apply(instance);
+				});
+			}
+
+			return this;
+		}
+
+	});
 
 });
