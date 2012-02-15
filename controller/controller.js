@@ -685,6 +685,9 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function( 
 			//set in data
 			(data(element) || data(element, {}))[pluginname] = this;
 
+			// !-- FOUNDRY HACK --! //
+			// Unique id for every controller instance.
+			this.instanceId = $.uid(cls._fullName+'_');
 
 			/**
 			 * @attribute options
