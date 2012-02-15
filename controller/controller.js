@@ -489,23 +489,39 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function( 
 			if (!options && parameterReplacer.test(methodName) ) {
 				return null;
 			}
-			// If we have options, run sub to replace templates "{}" with a value from the options
-			// or the window
-			var convertedName = options ? Str.sub(methodName, [options, window]) : methodName,
 
-				// If a "{}" resolves to an object, convertedName will be an array
-				arr = isArray(convertedName),
+			// !-- FOUNDRY HACK --! //
+			// Ability to bind an event to multiple elements.
+			// "[{element1}, {element2}] click"
 
-				// get the parts of the function = [convertedName, delegatePart, eventPart]
-				parts = (arr ? convertedName[1] : convertedName).match(breaker),
-				event = parts[2],
-				processor = processors[event] || basicProcessor;
-			return {
-				processor: processor,
-				parts: parts,
-				delegate : arr ? convertedName[0] : undefined
-			};
+			var ready = [], evt, parts;
+
+			if (methodName.match(/^\[.+\]/)) {
+				methodNames = methodName.replace(/^\[|\]/g,'').replace(', ',',').split(' ');
+				evt = methodNames.pop();
+				methodNames = methodNames[0].split(',');
+			} else {
+				methodNames = [methodName];
+			}
+
+			$.each(methodNames, function(i, methodName) {
+				var convertedName = options ? Str.sub(methodName, [options, window]) : methodName,
+					arr = isArray(convertedName),
+					parts = (evt) ? [convertedName + ' ' + evt, convertedName, evt] :
+					                (arr ? convertedName[1] : convertedName).match(breaker),
+					event = evt || parts[2],
+					processor = processors[event] || basicProcessor;
+
+				ready.push({
+					processor: processor,
+					parts: parts,
+					delegate : arr ? convertedName[0] : undefined
+				});
+			});
+
+			return ready;
 		},
+
 		/**
 		 * @attribute processors
 		 * An object of {eventName : function} pairs that Controller uses to hook up events
@@ -826,16 +842,25 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function( 
 
 				for ( funcName in actions ) {
 					if ( actions.hasOwnProperty(funcName) ) {
-						ready = actions[funcName] || cls._action(funcName, this.options);
-						bindings.push(
-							ready.processor(ready.delegate || element,
-							                ready.parts[2],
-											ready.parts[1],
-											funcName,
-											this));
+
+						// !-- FOUNDRY HACK --! //
+						// Ability to bind an event to multiple elements.
+						// "[{element1}, {element2}] click"
+
+						readyList = cls.actions[funcName] || cls._action(funcName, this.options);
+
+						var self = this;
+						$.each(readyList, function(i, ready) {
+							self._bindings.push(
+								ready.processor(ready.delegate || element,
+												ready.parts[2],
+									            ready.parts[1],
+									            funcName,
+									            self);
+							);
+						});
 					}
 				}
-
 
 				//setup to be destroyed ... don't bind b/c we don't want to remove it
 				var destroyCB = shifter(this,"destroy");
