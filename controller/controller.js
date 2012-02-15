@@ -731,7 +731,25 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function( 
 			 */
 			this.options = extend( extend(true, {}, cls.defaults), options);
 
+			// !-- FOUNDRY HACK --! //
+			// Augment selector properties into selector functions.
+			for (prop in this.options) {
 
+				if (prop.match(/^\{.+\}$/)) {
+
+					var selector = this.options[prop],
+						propFunc = prop.replace(/^\{|\}$/g,'');
+
+					this[propFunc] = (function(instance, selector, propFunc)
+					{
+						return (typeof selector!="string") ? selector : function(filter)
+						{
+							return filter ? instance.element.find(selector).filter(filter) : instance.element.find(selector);
+						};
+
+					})(this, selector, propFunc);
+				}
+			}
 
 			/**
 			 * @attribute called
