@@ -1,6 +1,6 @@
 steal('jquery/event').then(function() {
 
-	var event = jQuery.event,
+	var event = $.event,
 
 		//helper that finds handlers by type and calls back a function, this is basically handle
 		// events - the events object
@@ -9,7 +9,7 @@ steal('jquery/event').then(function() {
 		// selector - an optional selector to filter with, if there, matches by selector
 		//     if null, matches anything, otherwise, matches with no selector
 		findHelper = function( events, types, callback, selector ) {
-			var t, type, typeHandlers, all, h, handle, 
+			var t, type, typeHandlers, all, h, handle,
 				namespaces, namespace,
 				match;
 			for ( t = 0; t < types.length; t++ ) {
@@ -24,9 +24,9 @@ steal('jquery/event').then(function() {
 
 				for ( h = 0; h < typeHandlers.length; h++ ) {
 					handle = typeHandlers[h];
-					
+
 					match = (all || namespace.test(handle.namespace));
-					
+
 					if(match){
 						if(selector){
 							if (handle.selector === selector  ) {
@@ -37,11 +37,11 @@ steal('jquery/event').then(function() {
 						}
 						else if (!handle.selector ) {
 							callback(type, handle.origHandler || handle.handler);
-							
-						} 
+
+						}
 					}
-					
-					
+
+
 				}
 			}
 		};
@@ -98,7 +98,7 @@ steal('jquery/event').then(function() {
 		return selectors;
 	};
 	event.supportTouch = "ontouchend" in document;
-	
+
 	$.fn.respondsTo = function( events ) {
 		if (!this.length ) {
 			return false;
@@ -116,7 +116,7 @@ steal('jquery/event').then(function() {
 	 * Only attaches one event handler for all types ...
 	 * @param {Array} types llist of types that will delegate here
 	 * @param {Object} startingEvent the first event to start listening to
-	 * @param {Object} onFirst a function to call 
+	 * @param {Object} onFirst a function to call
 	 */
 	event.setupHelper = function( types, startingEvent, onFirst ) {
 		if (!onFirst ) {

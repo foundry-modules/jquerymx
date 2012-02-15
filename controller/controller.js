@@ -877,7 +877,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function( 
 												ready.parts[2],
 									            ready.parts[1],
 									            funcName,
-									            self);
+									            self)
 							);
 						});
 					}
