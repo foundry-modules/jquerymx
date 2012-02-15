@@ -65,7 +65,13 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function( 
 			return Str.underscore(className.replace("Foundry.", "").replace(dotsReg, '_').replace(controllersReg, ""));
 		},
 		// checks if it looks like an action
-		actionMatcher = /[^\w]/,
+		// actionMatcher = /[^\w]/,
+
+		// !-- FOUNDRY HACK --! //
+		// Prevent inclusion of single word property name that starts with a symbol, e.g. $family from MooTools.
+		// This is coming from an environment where jQuery and MooTools may coexist.
+		actionMatcher = /^\S(.*)\s(.*)/,
+
 		// handles parameterized action names
 		parameterReplacer = /\{([^\}]+)\}/g,
 		breaker = /^(?:(.*?)\s)?([\w\.\:>]+)$/,
