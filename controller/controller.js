@@ -385,6 +385,10 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function( 
 				 */
 				funcName, forLint;
 
+			// !-- FOUNDRY HACK --! //
+			// Make creation of jQuery plugin explicit.
+			// Use  {isPlugin: true} flag in controller's static prop to enable it.
+
 			if (this.isPlugin) {
 				var pluginname = this.pluginName || this._fullName;
 
