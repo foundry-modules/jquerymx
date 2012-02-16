@@ -1,4 +1,4 @@
-steal('jquery/dom/cookie','jquery/model/list').then(function($){
+steal('jquery/dom/cookie','jquery/model/list').then(function($) {
 /**
  * @class jQuery.Model.List.Local
  * @plugin jquery/model/list/local
@@ -38,5 +38,5 @@ $.Model.List("Foundry.Model.List.Local",
 
 });
 
-})
+});
 

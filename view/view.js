@@ -1,4 +1,4 @@
-steal("jquery").then(function( $ ) {
+steal("jquery").then(function($) {
 
 	// a path like string into something that's ok for an element ID
 	var toId = function( src ) {

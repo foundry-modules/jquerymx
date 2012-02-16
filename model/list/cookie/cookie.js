@@ -1,4 +1,4 @@
-steal('jquery/dom/cookie','jquery/model/list').then(function($){
+steal('jquery/dom/cookie','jquery/model/list').then(function($) {
 
 /**
  * @class jQuery.Model.List.Cookie
@@ -88,5 +88,5 @@ $.Model.List("Foundry.Model.List.Cookie",
 	}
 })
 
-})
+});
 

@@ -1,4 +1,4 @@
-steal('jquery/controller', 'jquery/view').then(function( $ ) {
+steal('jquery/controller', 'jquery/view').then(function($) {
 	var URI = steal.URI || steal.File;
 
 	$.Controller.getFolder = function() {

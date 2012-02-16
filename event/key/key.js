@@ -1,4 +1,4 @@
-steal('jquery/event').then(function($){
+steal('jquery/event').then(function($) {
 	var keymap = {},
 		reverseKeyMap = {};
 
@@ -157,4 +157,4 @@ steal('jquery/event').then(function($){
 	}
 
 
-})
+});

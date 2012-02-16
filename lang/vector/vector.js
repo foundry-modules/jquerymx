@@ -1,4 +1,4 @@
-steal('jquery').then(function($){
+steal('jquery').then(function($) {
 	var getSetZero = function(v){ return v !== undefined ? (this.array[0] = v) : this.array[0] },
 		getSetOne = function(v){ return v !== undefined ? (this.array[1] = v) : this.array[1] }
 /**
@@ -9,7 +9,7 @@ steal('jquery').then(function($){
  * @codestart
  * new jQuery.Vector(1,2)
  * @codeend
- * 
+ *
  */
 	$.Vector = function() {
 		this.update($.makeArray(arguments));
@@ -62,7 +62,7 @@ steal('jquery').then(function($){
 			return vec.update(arr);
 		},
 		/**
-		 * Returns the current vector if it is equal to the vector passed in.  
+		 * Returns the current vector if it is equal to the vector passed in.
 		 * False if otherwise.
 		 * @return {jQuery.Vector}
 		 */

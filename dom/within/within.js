@@ -81,4 +81,4 @@ $.fn.withinBox = function(left, top, width, height, cache){
     return this.pushStack( $.unique( ret ), "withinBox", $.makeArray(arguments).join(",") );
 }
 
-})
+});

@@ -23,7 +23,7 @@
  * For more information on jQuery.tmpl read
  * [http://api.jquery.com/category/plugins/templates/ it's documentation].
  */
-steal('jquery/view').then(function($){
+steal('jquery/view').then(function($) {
 		// Override the DOM manipulation function
 	var oldManip = $.fn.domManip, tmplItmAtt = "_tmplitem", htmlExpr = /^[^<]*(<[\w\W]+>)[^>]*$|\{\{\! /,
 		newTmplItems = {}, wrappedItems = {}, appendToTmplItems, topTmplItem = { key: 0, data: {} }, itemKey = 0, cloneIndex = 0, stack = [];
@@ -520,4 +520,4 @@ steal('jquery/view').then(function($){
 		}
 	})
 	$.View.ext = ".tmpl"
-})
+});

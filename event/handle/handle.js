@@ -1,4 +1,4 @@
-steal("jquery").then(function(){
+steal("jquery").then(function($){
 
 var $event = $.event,
 	oldTrigger = $event.trigger,
@@ -204,4 +204,4 @@ $.event.handle = function( event ) {
 	}
 	return event.result;
 }
-})
+});
