@@ -97,9 +97,9 @@ steal('steal/build/pluginify','steal/build/apps','steal/build/scripts').then( fu
 			var moduleExports  = "var exports = " + exports + "; \n";
 				moduleExports += "exports($); \n";
 				moduleExports += "module.resolveWith(exports); \n";
-				moduleExports += "); \n";
 
-			module += "$.module(" + moduleName + ", function() { \n";
+			module += "Foundry.run(function($) {\n";
+			module += "$.module(\"" + moduleName + "\", function() { \n";
 			module += "var module = this; \n";
 
 			if (moduleDeps.length > 0) {
@@ -112,6 +112,10 @@ steal('steal/build/pluginify','steal/build/apps','steal/build/scripts').then( fu
 				module += moduleExports;
 			}
 
+			// Closes $.module()
+			module += "});";
+
+			// Closes Foundry.run()
 			module += "});";
 
 			module = s.build.builders.scripts.clean(module);
