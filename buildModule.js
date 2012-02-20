@@ -87,7 +87,7 @@ steal('steal/build/pluginify','steal/build/apps','steal/build/scripts').then( fu
 			for (var i in deps) {
 				var moduleDep = "mvc/" + toModuleName(deps[i]);
 
-				if (moduleDep == moduleName || excludeModule.indexOf(moduleName) > -1) {
+				if (moduleDep == moduleName || excludeModule.indexOf(moduleDep) > -1) {
 					continue;
 				}
 
