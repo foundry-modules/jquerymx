@@ -674,6 +674,10 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 				$.extend(true, this, proto);
 			}
 
+			// !-- FOUNDRY HACK --! //
+			// Restore this.bind from this_bind. Conflict with mootools.
+			this.bind = this._bind;
+
 			//want the raw element here
 			element = (typeof element == 'string' ? $(element) :
 				(element.jquery ? element : [element]) )[0];
@@ -852,7 +856,10 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 		 * and second parameter.  Otherwise the function is called back like a normal bind.
 		 * @return {Integer} The id of the binding in this._bindings
 		 */
-		bind: function( el, eventName, func ) {
+
+		// !-- FOUNDRY HACK --! //
+		// Rename this.bind from this_bind. Conflict with mootools.
+		_bind: function( el, eventName, func ) {
 			if( el === undefined ) {
 				//adds bindings
 				this._bindings = [];
