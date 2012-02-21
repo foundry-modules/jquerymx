@@ -416,7 +416,7 @@ steal("jquery").then(function($) {
 
 		// !-- FOUNDRY HACK --! //
 		// Retrieve templates stored within $.template
-		var template = $.template(url);
+		var template = $.template(orig.url);
 
 		// return the ajax transport contract: http://api.jquery.com/extending-ajax/
 		return {
@@ -425,9 +425,7 @@ steal("jquery").then(function($) {
 				// !-- FOUNDRY HACK --! //
 				// Retrieve templates stored within $.template
 				if ( template ) {
-					return callback(200, "success", {
-						view: template
-					});
+					return callback(200, "success", response(template));
 
 				// if it is cached,
 				} else if ( $view.cached[id] ) {
