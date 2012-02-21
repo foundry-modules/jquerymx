@@ -359,14 +359,16 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			// of the factory function. This factory function gets executed during the
 			// instantiation of the controller.
 
-			if (isFunction(this[STR_PROTOTYPE])) {
+			var _prototype = arguments[3];
+
+			if (isFunction(_prototype)) {
 
 				// Remap the factory function
-				this.protoFactory = this[STR_PROTOTYPE];
+				this.protoFactory = _prototype;
 
 				// Attempt to execute the prototype factory once to get
 				// a list of actions that we can cache first.
-				this[STR_PROTOTYPE] = this.protoFactory.call(this, null);
+				$.extend(this[STR_PROTOTYPE], this.protoFactory.call(this, null));
 			}
 
 			var controller = this,
