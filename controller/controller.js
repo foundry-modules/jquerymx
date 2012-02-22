@@ -738,7 +738,9 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			 * [jQuery.Controller.prototype.update update];
 			 *
 			 */
-			this.options = extend( extend(true, {}, cls.defaults), options);
+			// !-- FOUNDRY HACK --! //
+			// Added defaultOptions as an alternative to defaults
+			this.options = extend( extend(true, {}, cls.defaults, cls.defaultOptions), options);
 
 			// !-- FOUNDRY HACK --! //
 			// Augment selector properties into selector functions.
