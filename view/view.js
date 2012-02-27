@@ -425,6 +425,9 @@ steal("jquery").then(function($) {
 				// !-- FOUNDRY HACK --! //
 				// Retrieve templates stored within $.template
 				if ( template ) {
+
+					type = $view.types["."+$.template()[orig.url].type];
+
 					return callback(200, "success", response(template));
 
 				// if it is cached,
