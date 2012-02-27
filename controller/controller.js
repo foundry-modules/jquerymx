@@ -1136,11 +1136,15 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 				options = args.slice(1);
 			}
 
+			name = this.options.views[name];
+
 			if (name==undefined) {
 				return (useHtml) ? "" : $("");
 			}
 
-			html = self[STR_CONSTRUCTOR].component.Views.apply(this, [name].concat(options));
+			var parent = this[STR_CONSTRUCTOR].component || $;
+
+			html = parent.Views.apply(parent, [name].concat(options));
 
 			return (useHtml) ? html : $(html);
 		},
