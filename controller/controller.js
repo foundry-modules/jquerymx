@@ -1118,11 +1118,31 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 		},
 
 		// !-- FOUNDRY HACK --! //
-		// Quick access controller templates.
-		template: function( name ) {
-			var args = $.makeArray(arguments);
-			args[0] = this.options.template[name] || name;
-			return $.View.apply(this, args);
+		// Quick acccess to views.
+		view: function() {
+
+			var args = $.makeArray(arguments),
+				name,
+				options,
+				useHtml = false,
+				html;
+
+			if (typeof args[0] == "boolean") {
+				useHtml = true;
+				name = args[1];
+				options = args.slice(2);
+			} else {
+				name = args[0];
+				options = args.slice(1);
+			}
+
+			if (name==undefined) {
+				return (useHtml) ? "" : $("");
+			}
+
+			html = self[STR_CONSTRUCTOR].component.Views.apply(this, [name].concat(options));
+
+			return (useHtml) ? html : $(html);
 		},
 
 		//tells callback to set called on this.  I hate this.
