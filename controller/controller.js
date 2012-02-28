@@ -1150,19 +1150,18 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 			var args = $.makeArray(arguments),
 				name,
-				options,
+				options = args,
 				useHtml = false,
 				context = this[STR_CONSTRUCTOR].component || $,
-				html = "";
+				html = "",
+				view = this.options.view || {};
 
 			if (typeof args[0] == "boolean") {
 				useHtml = args[0];
-				options = args.slice(2);
-			} else {
 				options = args.slice(1);
 			}
 
-			name = this.options.view[options[0]];
+			name = options[0] = view[options[0]];
 
 			// If view is not assigned, return empty string.
 			if (name==undefined) {
