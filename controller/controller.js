@@ -762,6 +762,33 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 				}
 			}
 
+			// !-- FOUNDRY HACK --! //
+			// Augment view properties into view functions.
+			// self.view.listItem(useHtml, data, callback);
+
+			var instance = this;
+
+			if ($.isPlainObject(this.options.view)) {
+
+				$.each(this.options.view, function(i, view) {
+
+					instance.view[view] = function() {
+
+						var args = $.makeArray(arguments),
+							useHtml = false;
+
+						if (typeof args[0] == "boolean") {
+							useHtml = args[0];
+						}
+
+						var options = [useHtml, view].concat(args.slice(1));
+
+						return instance.view.apply(this, options);
+					}
+
+				});
+			}
+
 			/**
 			 * @attribute called
 			 * String name of current function being called on controller instance.  This is
@@ -1125,26 +1152,24 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 				name,
 				options,
 				useHtml = false,
-				html;
+				context = this[STR_CONSTRUCTOR].component || $,
+				html = "";
 
 			if (typeof args[0] == "boolean") {
-				useHtml = true;
-				name = args[1];
+				useHtml = args[0];
 				options = args.slice(2);
 			} else {
-				name = args[0];
 				options = args.slice(1);
 			}
 
-			name = this.options.views[name];
+			name = this.options.view[options[0]];
 
+			// If view is not assigned, return empty string.
 			if (name==undefined) {
 				return (useHtml) ? "" : $("");
 			}
 
-			var parent = this[STR_CONSTRUCTOR].component || $;
-
-			html = parent.Views.apply(parent, [name].concat(options));
+			html = context.View.apply(context, options);
 
 			return (useHtml) ? html : $(html);
 		},
