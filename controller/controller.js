@@ -766,11 +766,12 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			// Augment view properties into view functions.
 			// self.view.listItem(useHtml, data, callback);
 
-			var instance = this;
+			var instance = this,
+				views = this.options.view;
 
-			if ($.isPlainObject(this.options.view)) {
+			if ($.isPlainObject(views)) {
 
-				$.each(this.options.view, function(i, view) {
+				$.each(views, function(view) {
 
 					instance.view[view] = function() {
 
@@ -783,7 +784,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 						var options = [useHtml, view].concat(args.slice(1));
 
-						return instance.view.apply(this, options);
+						return instance.view.apply(instance, options);
 					}
 
 				});
