@@ -781,9 +781,10 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 						if (typeof args[0] == "boolean") {
 							useHtml = args[0];
+							args = args.slice(1);
 						}
 
-						var options = [useHtml, view].concat(args.slice(1));
+						var options = [useHtml, view].concat(args);
 
 						return instance.view.apply(instance, options);
 					}
