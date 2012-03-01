@@ -2,7 +2,7 @@ steal('jquery/controller', 'jquery/view').then(function($) {
 	var URI = steal.URI || steal.File;
 
 	$.Controller.getFolder = function() {
-		return Foundry.String.underscore(this.fullName.replace(/\./g, "/")).replace("/Controllers", "");
+		return $.String.underscore(this.fullName.replace(/\./g, "/")).replace("/Controllers", "");
 	};
 
 	$.Controller._calculatePosition = function( Class, view, action_name ) {
@@ -13,9 +13,9 @@ steal('jquery/controller', 'jquery/view').then(function($) {
 
 		var classPartsWithoutPrefixSlashes = classPartsWithoutPrefix.join('/'),
 			hasControllers = (classParts.length > 2) && classParts[1] == 'Controllers',
-			path = hasControllers? Foundry.String.underscore(classParts[0]): Foundry.String.underscore(classParts.join("/")),
-			controller_name = Foundry.String.underscore(classPartsWithoutPrefix.join('/')).toLowerCase(),
-			suffix = (typeof view == "string" && /\.[\w\d]+$/.test(view)) ? "" : Foundry.View.ext;
+			path = hasControllers? $.String.underscore(classParts[0]): $.String.underscore(classParts.join("/")),
+			controller_name = $.String.underscore(classPartsWithoutPrefix.join('/')).toLowerCase(),
+			suffix = (typeof view == "string" && /\.[\w\d]+$/.test(view)) ? "" : $.View.ext;
 
 		//calculate view
 		if ( typeof view == "string" ) {
@@ -31,13 +31,13 @@ steal('jquery/controller', 'jquery/view').then(function($) {
 	var calculateHelpers = function( myhelpers ) {
 		var helpers = {};
 		if ( myhelpers ) {
-			if ( Foundry.isArray(myhelpers) ) {
+			if ( $.isArray(myhelpers) ) {
 				for ( var h = 0; h < myhelpers.length; h++ ) {
-					Foundry.extend(helpers, myhelpers[h]);
+					$.extend(helpers, myhelpers[h]);
 				}
 			}
 			else {
-				Foundry.extend(helpers, myhelpers);
+				$.extend(helpers, myhelpers);
 			}
 		} else {
 			if ( this._default_helpers ) {
@@ -49,13 +49,13 @@ steal('jquery/controller', 'jquery/view').then(function($) {
 			for ( var i = 0; i < parts.length; i++ ) {
 				if(current){
 					if ( typeof current.Helpers == 'object' ) {
-						Foundry.extend(helpers, current.Helpers);
+						$.extend(helpers, current.Helpers);
 					}
 					current = current[parts[i]];
 				}
 			}
 			if (current && typeof current.Helpers == 'object' ) {
-				Foundry.extend(helpers, current.Helpers);
+				$.extend(helpers, current.Helpers);
 			}
 			this._default_helpers = helpers;
 		}

@@ -43,7 +43,7 @@ steal('jquery/dom/cookie','jquery/model/list').then(function($) {
  *
  * @demo jquery/model/list/cookie/cookie.html
  */
-$.Model.List("Foundry.Model.List.Cookie",
+$.Model.List("$FOUNDRY_NAMESPACE.Model.List.Cookie",
 /**
  * @Prototype
  */

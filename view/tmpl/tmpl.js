@@ -332,8 +332,8 @@ steal('jquery/view').then(function($) {
 
 	// Generate a reusable function that will serve to render a template against data
 	function buildTmplFn( markup ) {
-		return new Function("Foundry","$item",
-			"var $=Foundry,call,_=[],$data=$item.data;" +
+		return new Function("context","$item",
+			"var $=context,call,_=[],$data=$item.data;" +
 
 			// Introduce the data as local variables using with(){}
 			"with($data){_.push('" +
@@ -516,7 +516,7 @@ steal('jquery/view').then(function($) {
 		},
 		script: function( id, str ) {
 			var tmpl = $.template( null, str );
-			return "function(data){return ("+tmpl+").call(Foundry, Foundry, {data: data}).join(''); }";
+			return "function(data){return ("+tmpl+").call($FOUNDRY_WINDOW_NAMESPACE, $FOUNDRY_WINDOW_NAMESPACE, {data: data}).join(''); }";
 		}
 	})
 	$.View.ext = ".tmpl"

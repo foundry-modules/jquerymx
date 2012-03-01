@@ -14,7 +14,7 @@ steal('jquery/model').then(function($) {
 		getIds = function( item ) {
 			return item[item.constructor.id]
 		},
-		expando = Foundry.expando,
+		expando = $.expando,
 		each = $.each,
 		ajax = $.Model._ajax,
 
@@ -372,7 +372,7 @@ steal('jquery/model').then(function($) {
 			}
 		};
 
-	$.Class("Foundry.Model.List", {
+	$.Class("$FOUNDRY_NAMESPACE.Model.List", {
 		setup: function() {
 			for ( var name in ajaxMethods ) {
 				if ( typeof this[name] !== 'function' ) {

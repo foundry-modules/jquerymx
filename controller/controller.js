@@ -62,7 +62,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 		controllersReg = /_?controllers?/ig,
 		//used to remove the controller from the name
 		underscoreAndRemoveController = function( className ) {
-			return Str.underscore(className.replace("Foundry.", "").replace(dotsReg, '_').replace(controllersReg, ""));
+			return Str.underscore(className.replace("$FOUNDRY_NAMESPACE.", "").replace(dotsReg, '_').replace(controllersReg, ""));
 		},
 		// checks if it looks like an action
 		// actionMatcher = /[^\w]/,
@@ -322,7 +322,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 	 * These methods let you call one controller from another controller.
 	 *
 	 */
-	$.Class("Foundry.Controller",
+	$.Class("$FOUNDRY_NAMESPACE.Controller",
 	/**
 	 * @Static
 	 */
@@ -345,7 +345,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			this._super.apply(this, arguments);
 
 			// if you didn't provide a name, or are controller, don't do anything
-			if (!this.shortName || this.fullName == "Foundry.Controller" ) {
+			if (!this.shortName || this.fullName == "$FOUNDRY_NAMESPACE.Controller" ) {
 				return;
 			}
 

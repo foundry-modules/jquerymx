@@ -1,4 +1,4 @@
-(function($){
+(function(){
 	$.Downloader = {
 		dependencies: [],
 		pluginData: null,
@@ -101,4 +101,4 @@
 		ev.preventDefault();
 		$('form')[0].submit();
 	})
-})(Foundry)
+})();

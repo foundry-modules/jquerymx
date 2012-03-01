@@ -257,7 +257,7 @@ steal('jquery/class').then(function($) {
 	 * @param {Object} obj a JavaScript Object that will be
 	 * converted to an observable
 	 */
-	$.Class('Foundry.Observe',
+	$.Class('$FOUNDRY_NAMESPACE.Observe',
 	/**
 	 * @prototype
 	 */
@@ -611,7 +611,7 @@ steal('jquery/class').then(function($) {
 	 *
 	 *
 	 */
-	var list = $.Observe('Foundry.Observe.List',
+	var list = $.Observe('$FOUNDRY_NAMESPACE.Observe.List',
 	/**
 	 * @prototype
 	 */

@@ -192,7 +192,7 @@ steal('jquery/view', 'jquery/lang/string/rsplit').then(function($) {
 			this.template = compile(this.text, this.type, this.name);
 		};
 	// add EJS to jQuery if it exists
-	window.Foundry && (Foundry.EJS = EJS);
+	$ && ($.EJS = EJS);
 	/**
 	 * @Prototype
 	 */
@@ -487,7 +487,7 @@ steal('jquery/view', 'jquery/lang/string/rsplit').then(function($) {
 								var parts = content.match(quickFunc)
 								content = "function(__){var "+parts[1]+"=$(__);"+parts[2]+"}"
 							}
-							buff.push(insert_cmd, "Foundry.EJS.clean(", content,bn ? startTxt : doubleParen);
+							buff.push(insert_cmd, "$FOUNDRY_WINDOW_NAMESPACE.EJS.clean(", content,bn ? startTxt : doubleParen);
 							break;
 						case scanner.eeLeft:
 							// <%== content
@@ -500,7 +500,7 @@ steal('jquery/view', 'jquery/lang/string/rsplit').then(function($) {
 								endStack.push(doubleParen)
 							}
 
-							buff.push(insert_cmd, "Foundry.EJS.text(", content,
+							buff.push(insert_cmd, "$FOUNDRY_WINDOW_NAMESPACE.EJS.text(", content,
 								// if we have a block
 								bn ?
 								// start w/ startTxt "var _v1ew = [])"
@@ -653,7 +653,7 @@ steal('jquery/view', 'jquery/lang/string/rsplit').then(function($) {
 		suffix: "ejs",
 		//returns a function that renders the view
 		script: function( id, src ) {
-			return "Foundry.EJS(function(_CONTEXT,_VIEW) { " + new EJS({
+			return "$FOUNDRY_WINDOW_NAMESPACE.EJS(function(_CONTEXT,_VIEW) { " + new EJS({
 				text: src,
 				name: id
 			}).template.out + " })";

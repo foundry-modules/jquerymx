@@ -14,7 +14,7 @@ steal('jquery/controller').then(function($) {
  *
  *
  */
-$.Controller("Foundry.Tie",{
+$.Controller("$FOUNDRY_NAMESPACE.Tie",{
 	setup : function(el){
 		this._super(el,{})
 		return $.makeArray(arguments);
