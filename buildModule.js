@@ -71,7 +71,7 @@ steal('steal/build/pluginify','steal/build/apps','steal/build/scripts').then( fu
 			var name    = toModuleName(path),
 				content = readFile(path),
 				deps    = files[path],
-				exports = s.build.pluginify.getFunction(content);
+				exports = s.build.pluginify.getFunctionBody(content);
 
 			var module = "",
 				moduleName = "mvc/" + name;
@@ -94,31 +94,30 @@ steal('steal/build/pluginify','steal/build/apps','steal/build/scripts').then( fu
 				moduleDeps.push(moduleDep);
 			}
 
-			var moduleExports  = "var exports = " + exports + "; \n";
-				moduleExports += "exports($); \n";
-				moduleExports += "module.resolveWith(exports); \n";
+			var moduleFile = "jquery/dist/modules/"+moduleName+".js",
+				rawModuleFile = "jquery/dist/modules/"+moduleName+".js.raw"
 
-			module += "Foundry.run(function($) {\n";
-			module += "$.module(\"" + moduleName + "\", function() { \n";
-			module += "var module = this; \n";
+			s.File(rawModuleFile).save(exports);
+
+			var args = ["-n", moduleName];
 
 			if (moduleDeps.length > 0) {
-
-				module += "$.require().script(\"" + moduleDeps.join('","') + "\").done(function() { \n";
-				module +=       moduleExports;
-				module += "});\n";
-			} else {
-
-				module += moduleExports;
+				args.push("-d")
+				args.push(moduleDeps.join(","));
 			}
 
-			// Closes $.module()
-			module += "});";
+			args.push(rawModuleFile);
 
-			// Closes Foundry.run()
-			module += "});";
+			var result = {
+				args: args,
+				input: "",
+				output: "",
+				err: ""
+			};
 
-			module = s.build.builders.scripts.clean(module);
+			runCommand("../../build/modularize", result);
+
+			module = s.build.builders.scripts.clean(result.output);
 
 			print(" "+moduleName+"");
 
