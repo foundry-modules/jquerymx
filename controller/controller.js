@@ -738,6 +738,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			 * [jQuery.Controller.prototype.update update];
 			 *
 			 */
+
 			// !-- FOUNDRY HACK --! //
 			// Added defaultOptions as an alternative to defaults
 			this.options = extend( extend(true, {}, cls.defaults, cls.defaultOptions), options);
@@ -789,6 +790,10 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 				});
 			}
+
+			// !-- FOUNDRY HACK --! //
+			// Instance property override
+			$.extend(this, this.options.controller);
 
 			/**
 			 * @attribute called
