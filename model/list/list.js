@@ -372,7 +372,7 @@ steal('jquery/model').then(function($) {
 			}
 		};
 
-	$.Class("$FOUNDRY_NAMESPACE.Model.List", {
+	$.Class($.globalNamespace + ".Model.List", {
 		setup: function() {
 			for ( var name in ajaxMethods ) {
 				if ( typeof this[name] !== 'function' ) {

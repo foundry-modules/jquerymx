@@ -730,7 +730,7 @@ steal('jquery/class', 'jquery/lang/string', function($) {
 
 
 
-	$.Class("$FOUNDRY_NAMESPACE.Model", {
+	$.Class($.globalNamespace + ".Model", {
 		setup: function( superClass, stat, proto ) {
 
 			var self = this,
@@ -752,7 +752,7 @@ steal('jquery/class', 'jquery/lang/string', function($) {
 			this._fullName = underscore(fullName.replace(/\./g, "_"));
 			this._shortName = underscore(this.shortName);
 
-			if ( fullName.indexOf("$FOUNDRY_NAMESPACE") == 0 ) {
+			if ( fullName.indexOf($.globalNamespace) == 0 ) {
 				return;
 			}
 

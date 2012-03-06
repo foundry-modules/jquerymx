@@ -7,7 +7,7 @@ steal('jquery/dom/cookie','jquery/model/list').then(function($) {
  * Works exactly the same as [jQuery.Model.List.Cookie] except uses
  * a local store instead of cookies.
  */
-$.Model.List("$FOUNDRY_NAMESPACE.Model.List.Local",
+$.Model.List($.globalNamespace + ".Model.List.Local",
 {
 	retrieve : function(name){
 		// each also needs what they are referencd by ?

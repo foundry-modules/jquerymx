@@ -516,7 +516,7 @@ steal('jquery/view').then(function($) {
 		},
 		script: function( id, str ) {
 			var tmpl = $.template( null, str );
-			return "function(data){return ("+tmpl+").call($FOUNDRY_WINDOW_NAMESPACE, $FOUNDRY_WINDOW_NAMESPACE, {data: data}).join(''); }";
+			return "function(data){return ("+tmpl+").call(" + $.globalNamespace + ", " + $.globalNamespace + ", {data: data}).join(''); }";
 		}
 	})
 	$.View.ext = ".tmpl"

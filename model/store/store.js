@@ -3,10 +3,10 @@ steal('jquery/model/list','jquery/lang/object',function($) {
 var same = $.Object.same;
 
 
-$.Class('$FOUNDRY_NAMESPACE.Model.Store',
+$.Class($.globalNamespace + '.Model.Store',
 {
 	init : function(){
-		if(this.fullName === '$FOUNDRY_NAMESPACE.Model.Store'){
+		if(this.fullName === $.globalNamespace + '.Model.Store'){
 			return;
 		}
 		/**

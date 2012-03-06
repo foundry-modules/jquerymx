@@ -9243,7 +9243,10 @@ jQuery.each([ "Height", "Width" ], function( i, name ) {
 
 
 // Expose jQuery to the global object
-window.$FOUNDRY_NAMESPACE = window.$FOUNDRY_WINDOW_NAMESPACE = window.Foundry = window.jQuery = window.$ = jQuery;
+
+jQuery.globalNamespace = "Foundry123981293123";
+
+window[jQuery.globalNamespace] = window.Foundry = window.jQuery = window.$ = jQuery;
 
 // Expose jQuery as an AMD module, but only for AMD loaders that
 // understand the issues with loading multiple versions of jQuery

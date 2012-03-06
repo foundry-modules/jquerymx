@@ -14,7 +14,7 @@ steal('jquery/controller').then(function($) {
  *
  *
  */
-$.Controller("$FOUNDRY_NAMESPACE.Tie",{
+$.Controller($.globalNamespace + ".Tie",{
 	setup : function(el){
 		this._super(el,{})
 		return $.makeArray(arguments);
