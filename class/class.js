@@ -623,7 +623,7 @@ steal("jquery","jquery/lang/string", function($) {
 
 				// !-- FOUNDRY HACK --! //
 				// Inherit any existing properties from the namespace where Class is being assigned to.
-				extend(Class, current[shortName]);
+				extend(true, Class, current[shortName]);
 
 				current[shortName] = Class;
 			}
