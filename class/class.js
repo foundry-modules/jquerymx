@@ -620,6 +620,11 @@ steal("jquery","jquery/lang/string", function($) {
 					steal.dev.warn("class.js There's already something called "+fullName)
 				}
 				//!steal-remove-end
+
+				// !-- FOUNDRY HACK --! //
+				// Inherit any existing properties from the namespace where Class is being assigned to.
+				extend(Class, current[shortName]);
+
 				current[shortName] = Class;
 			}
 
