@@ -35,8 +35,16 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 		// Binds an element, returns a function that unbinds
 		delegate = function( el, selector, ev, callback ) {
+
+			// !-- FOUNDRY HACK --! //
+			// Make event delegation work with direct child selector
+			if ( selector.indexOf(">") === 0 ) {
+				selector = (el.data("directSelector") + " " || "") + selector;
+			}
+
 			var binder = el.delegate && el.undelegate ? el : $(isFunction(el) ? [el] : el)
 			binder.delegate(selector, ev, callback);
+
 			return function() {
 				binder.undelegate(selector, ev, callback);
 				binder = el = ev = callback = selector = null;
@@ -685,8 +693,10 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			//set element and className on element
 			var pluginname = cls.pluginName || cls._fullName;
 
-			//set element and className on element
-			this.element = $(element).addClass(pluginname);
+			// !-- FOUNDRY HACK --! //
+			// Removed adding of plugin name class
+			// this.element = $(element).addClass(pluginname);
+			this.element = $(element);
 
 			//set in data
 			(data(element) || data(element, {}))[pluginname] = this;
@@ -694,6 +704,17 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			// !-- FOUNDRY HACK --! //
 			// Unique id for every controller instance.
 			this.instanceId = $.uid(cls._fullName+'_');
+
+			// !-- FOUNDRY HACK --~ //
+			// Add a unique direct selector for every controller instance.
+			if (this.element.data("directSelector")===undefined) {
+
+				var selector = $.uid("DS");
+
+				this.element.data("directSelector", "." + selector);
+
+				this.element.addClass(selector);
+			}
 
 			/**
 			 * @attribute options
