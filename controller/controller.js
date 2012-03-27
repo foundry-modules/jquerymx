@@ -762,7 +762,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 			// !-- FOUNDRY HACK --! //
 			// Added defaultOptions as an alternative to defaults
-			this.options = extend( extend(true, {}, cls.defaults, cls.defaultOptions), options);
+			this.options = extend(true, {}, cls.defaults, cls.defaultOptions, options);
 
 			// !-- FOUNDRY HACK --! //
 			// Augment selector properties into selector functions.
@@ -790,6 +790,14 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 			var instance = this,
 				views = this.options.view;
+
+			// Prevent augmented functions from being
+			// extended onto the prototype view function.
+			var __view = instance.view;
+
+			instance.view = function() {
+				return __view.apply(this, arguments);
+			};
 
 			if ($.isPlainObject(views)) {
 
