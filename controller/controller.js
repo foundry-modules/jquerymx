@@ -993,6 +993,11 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			//adds bindings
 			this._bindings = [];
 		},
+		// !-- FOUNDRY HACK --! //
+		// Element event triggering
+		trigger: function() {
+			this.element.trigger.apply(this.element, arguments);
+		},
 		/**
 		 * Delegate will delegate on an elememt and will be undelegated when the controller is removed.
 		 * This is a good way to delegate on elements not in a controller's element.<br/>
