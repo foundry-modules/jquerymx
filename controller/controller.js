@@ -515,6 +515,12 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			}
 
 			$.each(methodNames, function(i, methodName) {
+
+				// !-- FOUNDRY HACK --! //
+				// Ability to bind custom event to self.
+				// "{self} customEvent"
+				methodName = methodName.replace("{self} ", "");
+
 				var convertedName = options ? Str.sub(methodName, [options, window]) : methodName,
 					arr = isArray(convertedName),
 					parts = (evt) ? [convertedName + ' ' + evt, convertedName, evt] :
