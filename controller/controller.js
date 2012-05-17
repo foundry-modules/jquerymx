@@ -367,7 +367,8 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			// of the factory function. This factory function gets executed during the
 			// instantiation of the controller.
 
-			var _prototype = arguments[3];
+			var _prototype = arguments[3],
+				proto;
 
 			if (isFunction(_prototype)) {
 
@@ -376,7 +377,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 				// Attempt to execute the prototype factory once to get
 				// a list of actions that we can cache first.
-				$.extend(this[STR_PROTOTYPE], this.protoFactory.call(this, null));
+				proto = this.protoFactory.call(this, null);
 			}
 
 			var controller = this,
@@ -443,8 +444,13 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			// calculate and cache actions
 			this.actions = {};
 
-			for ( funcName in this[STR_PROTOTYPE] ) {
-				if (funcName == 'constructor' || !isFunction(this[STR_PROTOTYPE][funcName]) ) {
+			// !-- FOUNDRY HACK --! //
+			// Use prototype returned by prototype factory if exists.
+
+			proto = proto || this[STR_PROTOTYPE];
+
+			for ( funcName in proto ) {
+				if (funcName == 'constructor' || !isFunction(proto[funcName]) ) {
 					continue;
 				}
 				if ( this._isAction(funcName) ) {
@@ -1270,6 +1276,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 				controllers = $.data(this, "controllers");
 				for ( cname in controllers ) {
+
 					if ( controllers.hasOwnProperty(cname) ) {
 						c = controllers[cname];
 						if (!controllerNames.length || isAControllerOf(c, controllerNames) ) {
