@@ -787,10 +787,18 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 					this[propFunc] = (function(instance, selector, propFunc)
 					{
-						return (typeof selector!="string") ? selector : function(filter)
+						if (typeof selector!=="string") return selector;
+
+						// Create selector function
+						var selectorFunc = function(filter)
 						{
 							return filter ? instance.element.find(selector).filter(filter) : instance.element.find(selector);
 						};
+
+						// Keep the selector as a property of the function
+						selectorFunc.selector = selector;
+
+						return selectorFunc;
 
 					})(this, selector, propFunc);
 				}
