@@ -789,6 +789,9 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 					{
 						if (typeof selector!=="string") return selector;
 
+						// Selector shorthand for controllers
+						selector = /^(\.|\#)$/.test(selector) ? selector + propFunc : selector;
+
 						// Create selector function
 						var selectorFunc = function(filter)
 						{
