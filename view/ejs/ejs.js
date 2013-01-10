@@ -346,14 +346,14 @@ steal('jquery/view', 'jquery/lang/string/rsplit').then(function($) {
 		makeScanner = function( left, right ) {
 			var scanner = {};
 			extend(scanner, {
-				left: left + '@',
-				right: '@' + right,
-				dLeft: left + '@@',
-				dRight: '@@' + right,
-				eeLeft : left + '@==',
-				eLeft: left + '@=',
-				cmnt: left + '@#',
-				cleanLeft: left+"@~",
+				left: left + '%',
+				right: '%' + right,
+				dLeft: left + '%%',
+				dRight: '%%' + right,
+				eeLeft : left + '%==',
+				eLeft: left + '%=',
+				cmnt: left + '%#',
+				cleanLeft: left+"%~",
 				scan: scan,
 				lines: 0
 			});
@@ -374,7 +374,7 @@ steal('jquery/view', 'jquery/lang/string/rsplit').then(function($) {
 			// make everything only use \n
 			source = source.replace(returnReg, "\n").replace(retReg, "\n");
 			// if no left is given, assume <
-			left = left || '<';
+			left = left || '[';
 
 			// put and insert cmds are used for adding content to the template
 			// currently they are identical, I am not sure why
