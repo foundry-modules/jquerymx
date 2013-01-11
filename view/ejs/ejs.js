@@ -310,7 +310,7 @@ steal('jquery/view', 'jquery/lang/string/rsplit').then(function($) {
 		 * Type is the left hand magic tag.
 		 */
 		options: {
-			type: '<',
+			type: '[',
 			ext: '.ejs'
 		}
 	});
