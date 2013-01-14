@@ -9246,6 +9246,8 @@ jQuery.each([ "Height", "Width" ], function( i, name ) {
 
 jQuery.globalNamespace = "Foundry123981293123";
 
+jQuery.module = function(){ return jQuery.Deferred(); };
+
 window[jQuery.globalNamespace] = window.Foundry = window.jQuery = window.$ = jQuery;
 
 // Expose jQuery as an AMD module, but only for AMD loaders that

@@ -401,6 +401,9 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			// Use  {isPlugin: true} flag in controller's static prop to enable it.
 
 			if (this.isPlugin) {
+				// !-- FOUNDRY HACK --! //
+				// Add a reference to the fullname
+				var _fullName = this._fullName;
 				var pluginname = this.pluginName || this._fullName;
 
 				// create jQuery plugin
@@ -415,7 +418,11 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 							//check if created
 							var controllers = data(this),
 								//plugin is actually the controller instance
-								plugin = controllers && controllers[pluginname];
+								//plugin = controllers && controllers[pluginname];
+
+								// !-- FOUNDRY HACK --! //
+								// Check using controller full name
+								plugin = controllers && controllers[_fullName];
 
 							if ( plugin ) {
 								if ( isMethod ) {
@@ -457,6 +464,10 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 					this.actions[funcName] = this._action(funcName);
 				}
 			}
+
+			// !-- FOUNDRY HACK --! //
+			// Controller has been created. Resolve module.
+			$.module("$:/Controllers/" + this.fullName).resolve(this);
 		},
 
 		hookup: function( el ) {
@@ -703,7 +714,9 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 				(element.jquery ? element : [element]) )[0];
 
 			//set element and className on element
-			var pluginname = cls.pluginName || cls._fullName;
+			// var pluginname = cls.pluginName || cls._fullName;
+			// !-- FOUNDRY HACK --! //
+			// Never use pluginname
 
 			// !-- FOUNDRY HACK --! //
 			// Removed adding of plugin name class
@@ -711,7 +724,11 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			this.element = $(element);
 
 			//set in data
-			(data(element) || data(element, {}))[pluginname] = this;
+			// (data(element) || data(element, {}))[pluginname] = this;
+
+			// !-- FOUNDRY HACK --! //
+			// Use _fullName instead
+			(data(element) || data(element, {}))[cls._fullName] = this;
 
 			// !-- FOUNDRY HACK --! //
 			// Unique id for every controller instance.
@@ -1013,7 +1030,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 		// !-- FOUNDRY HACK --! //
 		// Element event triggering
 		trigger: function() {
-			this.element.trigger.apply(this.element, arguments);
+			return this.element.trigger.apply(this.element, arguments);
 		},
 		/**
 		 * Delegate will delegate on an elememt and will be undelegated when the controller is removed.
@@ -1267,14 +1284,44 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 	//used to determine if a controller instance is one of controllers
 	//controllers can be strings or classes
-	var i, isAControllerOf = function( instance, controllers ) {
-		for ( i = 0; i < controllers.length; i++ ) {
-			if ( typeof controllers[i] == 'string' ? instance[STR_CONSTRUCTOR]._shortName == controllers[i] : instance instanceof controllers[i] ) {
-				return true;
-			}
+
+	var getController = function(controller) {
+		if (typeof controller === "string") {
+			controller = $.String.getObject(controller);
+		};
+		return ($.isController(controller)) ? controller : undefined;
+	}
+
+	var flattenControllers = function(controllers) {
+		return $.map(controllers, function(controller){
+			return ($.isArray(controller)) ? flatten(controller) : getController(controller);
+		});
+	};
+
+	$.isController = function(controller) {
+		return isFunction(controller) && controller.hasOwnProperty("_fullName");
+	}
+
+	$.isControllerInstance = function(instance) {
+		return instance[STR_CONSTRUCTOR] && $.isController(instance[STR_CONSTRUCTOR]);
+	}
+
+	$.isControllerOf = function(instance, controllers) {
+
+		if (!controllers) return false;
+
+		if (!$.isArray(controllers)) {
+			controllers = [controllers];
 		}
+
+		while (controllers.length) {
+			var controller = getController(controllers.shift());
+			if (instance instanceof controller) return true;
+		}
+
 		return false;
 	};
+
 	$.fn.extend({
 		/**
 		 * @function controllers
@@ -1282,55 +1329,104 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 		 * @return {Array} an array of controller instances.
 		 */
 		controllers: function() {
-			var controllerNames = makeArray(arguments),
-				instances = [],
-				controllers, c, cname;
-			//check if arguments
+
+			var candidates = flattenControllers(makeArray(arguments)),
+				instances = [];
+
 			this.each(function() {
 
-				controllers = $.data(this, "controllers");
-				for ( cname in controllers ) {
+				var controllers = $.data(this, "controllers");
 
-					if ( controllers.hasOwnProperty(cname) ) {
-						c = controllers[cname];
-						if (!controllerNames.length || isAControllerOf(c, controllerNames) ) {
-							instances.push(c);
-						}
+				for (_fullName in controllers) {
+
+					if (!controllers.hasOwnProperty(_fullName)) continue;
+
+					instance = controllers[_fullName];
+
+					if (!candidates.length || $.isControllerOf(instance, candidates)) {
+						instances.push(instance);
 					}
 				}
 			});
+
 			return instances;
 		},
+
 		/**
 		 * @function controller
 		 * Gets a controller in the jQuery element.  With no arguments, returns the first one found.
 		 * @param {Object} controller (optional) if exists, the first controller instance with this class type will be returned.
 		 * @return {jQuery.Controller} the first controller.
 		 */
-		controller: function( controller ) {
-			return this.controllers.apply(this, arguments)[0];
-		},
+		controller: function(controller, options) {
 
-		// !-- FOUNDRY HACK --! //
-		// Implement controller onto jQuery elements.
-		// $(el).implement(controller|controllerName);
-		implement: function( controller, options, callback ) {
-
-			var elements = this,
-				controllerName;
-
-			if (typeof controller === "string") {
-				controllerName = controller;
-				controller = $.String.getObject(controllerName);
-			};
-
-			if (controller !== undefined) {
-				$.each(elements, function() {
-					var instance = new controller(this, options);
-					callback && callback.apply(instance);
-				});
+			// Getter
+			if (options===undefined) {
+				return this.controllers(controller)[0];
 			}
 
+			// Setter
+			this.addController.apply(this, arguments);
+			return this;
+		},
+
+		addController: function(controller, options, callback) {
+
+			var Controller = getController(controller);
+
+			if (!Controller) return;
+
+			var instances = [];
+
+			this.each(function(){
+				var instance = new Controller(this, options);
+				isFunction(callback) && callback.apply(instance, [$(this), instance]);
+				instances.push(instance);
+			});
+
+			return (instances.length > 1) ? instances : instances[0];
+		},
+
+		removeController: function(controller) {
+			this.each(function(){
+				var instances = $(this).controllers(controller);
+				while (instances.length) {
+					instances.shift().destroy();
+				}
+			});
+			return this;
+		},
+
+		addControllerWhenAvailable: function(controller) {
+
+			var elements = this,
+				args = arguments,
+				task = $.Deferred();
+
+			if ($.isController(controller)) {
+				controller = controller.fullName;
+			}
+
+			if (!$._.isString(controller)) {
+				return task.reject();
+			}
+
+			$.module("$:/Controllers/" + controller)
+				.pipe(
+					function(){
+						var instance = elements.addController.apply(elements, args);
+						task.resolveWith(instance, [elements, instance]);
+					},
+					task.reject,
+					task.fail
+				);
+
+			return task;
+		},
+
+		// @deprecated 2.2
+		implement: function() {
+			this.addController.apply(this, arguments);
 			return this;
 		}
 
