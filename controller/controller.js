@@ -1314,7 +1314,11 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 		if (typeof controller === "string") {
 			controller = $.String.getObject(controller);
 		};
-		return ($.isController(controller)) ? controller : undefined;
+		return (isController(controller)) ? controller : undefined;
+	}
+
+	var isController = function(controller) {
+		return isFunction(controller) && controller.hasOwnProperty("_fullName");
 	}
 
 	var flattenControllers = function(controllers) {
@@ -1324,11 +1328,11 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 	};
 
 	$.isController = function(controller) {
-		return isFunction(controller) && controller.hasOwnProperty("_fullName");
+		return isController(getController(controller));
 	}
 
 	$.isControllerInstance = function(instance) {
-		return instance[STR_CONSTRUCTOR] && $.isController(instance[STR_CONSTRUCTOR]);
+		return instance[STR_CONSTRUCTOR] && isController(instance[STR_CONSTRUCTOR]);
 	}
 
 	$.isControllerOf = function(instance, controllers) {
