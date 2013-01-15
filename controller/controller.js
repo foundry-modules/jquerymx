@@ -330,7 +330,9 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 	 * These methods let you call one controller from another controller.
 	 *
 	 */
-	$.Class($.globalNamespace + ".Controller",
+	var controllerNamespace = $.globalNamespace + ".Controller";
+
+	$.Class(controllerNamespace,
 	/**
 	 * @Static
 	 */
@@ -348,12 +350,36 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 		 *     "Controllers.Task" -> $().controllers_task()
 		 *
 		 */
-		setup: function() {
+		setup: function(baseClass, name) {
+
 			// Allow contollers to inherit "defaults" from superclasses as it done in $.Class
-			this._super.apply(this, arguments);
+			// this._super.apply(this, arguments);
+
+			// !-- FOUNDRY HACK --! //
+			// By default, all controllers are created under the
+			// $.Controller namespace.
+			var args = makeArray(arguments),
+				_static = {
+					namespace: controllerNamespace
+				},
+				_prototype;
+
+			if (args.length > 3) {
+				// Namespace can be overriden
+				_static = $.extend(_static, args[2]);
+				_prototype = args[3];
+			} else {
+				_prototype = args[2];
+			}
+
+			if (_static.namespace) {
+				name = _static.namespace + "." + name;
+			}
+
+			this._super.apply(this, [baseClass, name, _static, _prototype]);
 
 			// if you didn't provide a name, or are controller, don't do anything
-			if (!this.shortName || this.fullName == $.globalNamespace + ".Controller" ) {
+			if (!this.shortName || this.fullName == controllerNamespace ) {
 				return;
 			}
 
@@ -367,8 +393,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			// of the factory function. This factory function gets executed during the
 			// instantiation of the controller.
 
-			var _prototype = arguments[3],
-				proto;
+			var proto;
 
 			if (isFunction(_prototype)) {
 
