@@ -714,130 +714,78 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 		 * @return {Array} return an array if you wan to change what init is called with. By
 		 * default it is called with the element and options passed to the controller.
 		 */
-		setup: function( element, options ) {
+		setup: function(element, options) {
 
-			var funcName, ready, cls = this[STR_CONSTRUCTOR];
+			var instance = this,
+				instanceOptions,
+				Class = instance[STR_CONSTRUCTOR],
+				prototype = instance[STR_PROTOTYPE];
 
 			// !-- FOUNDRY HACK --! //
 			// Execute factory function if exists, extends the properties
 			// of the returned object onto the instance.
-			if (cls.protoFactory) {
+			if (Class.protoFactory) {
 
 				// This is where "self" keyword is passed as first argument.
-				var proto = cls.protoFactory.call(cls, this);
+				prototype = Class.protoFactory.apply(Class, [instance]);
 
 				// Extend the properties of the prototype object onto the instance.
-				$.extend(true, this, proto);
+				extend(true, instance, prototype);
 			}
 
-			// !-- FOUNDRY HACK --! //
-			// Restore this.bind from this_bind. Conflict with mootools.
-			this.bind = this._bind;
+			var _fullName = Class._fullName;
 
-			//want the raw element here
-			element = (typeof element == 'string' ? $(element) :
-				(element.jquery ? element : [element]) )[0];
-
-			//set element and className on element
-			// var pluginname = cls.pluginName || cls._fullName;
-			// !-- FOUNDRY HACK --! //
-			// Never use pluginname
-
-			// !-- FOUNDRY HACK --! //
-			// Removed adding of plugin name class
-			// this.element = $(element).addClass(pluginname);
-			this.element = $(element);
-
-			//set in data
-			// (data(element) || data(element, {}))[pluginname] = this;
+			instance.element = element = $(element);
 
 			// !-- FOUNDRY HACK --! //
 			// Use _fullName instead
-			(data(element) || data(element, {}))[cls._fullName] = this;
+			(data(element) || data(element, {}))[_fullName] = instance;
 
 			// !-- FOUNDRY HACK --! //
 			// Unique id for every controller instance.
-			this.instanceId = $.uid(cls._fullName+'_');
+			instance.instanceId = $.uid(_fullName + '_');
 
 			// !-- FOUNDRY HACK --~ //
 			// Add a unique direct selector for every controller instance.
-			if (this.element.data("directSelector")===undefined) {
-
+			if (element.data("directSelector")===undefined) {
 				var selector = $.uid("DS");
-
-				this.element.data("directSelector", "." + selector);
-
-				this.element.addClass(selector);
+				element
+					.addClass(selector)
+					.data("directSelector", "." + selector);
 			}
-
-			/**
-			 * @attribute options
-			 *
-			 * Options are used to configure an controller.  They are
-			 * the 2nd argument
-			 * passed to a controller (or the first argument passed to the
-			 * [jquery.controller.plugin controller's jQuery plugin]).
-			 *
-			 * For example:
-			 *
-			 *     $.Controller('Hello')
-			 *
-			 *     var h1 = new Hello($('#content1'), {message: 'World'} );
-			 *     equal( h1.options.message , "World" )
-			 *
-			 *     var h2 = $('#content2').hello({message: 'There'})
-			 *                            .controller();
-			 *     equal( h2.options.message , "There" )
-			 *
-			 * Options are merged with [jQuery.Controller.static.defaults defaults] in
-			 * [jQuery.Controller.prototype.setup setup].
-			 *
-			 * For example:
-			 *
-			 *     $.Controller("Tabs",
-			 *     {
-			 *        defaults : {
-			 *          activeClass: "ui-active-state"
-			 *        }
-			 *     },
-			 *     {
-			 *        init : function(){
-			 *          this.element.addClass(this.options.activeClass);
-			 *        }
-			 *     })
-			 *
-			 *     $("#tabs1").tabs()                         // adds 'ui-active-state'
-			 *     $("#tabs2").tabs({activeClass : 'active'}) // adds 'active'
-			 *
-			 * Options are typically updated by calling
-			 * [jQuery.Controller.prototype.update update];
-			 *
-			 */
 
 			// !-- FOUNDRY HACK --! //
 			// Added defaultOptions as an alternative to defaults
-			this.options = extend(true, {}, cls.defaults, cls.defaultOptions, options);
+			instance.options = instanceOptions = extend(true, {}, Class.defaults, Class.defaultOptions, options);
 
 			// !-- FOUNDRY HACK --! //
 			// Augment selector properties into selector functions.
-			for (prop in this.options) {
+			// The rest are passed in as controller properties.
+			for (name in instanceOptions) {
 
-				if (prop.match(/^\{.+\}$/)) {
+				if (!name.match(/^\{.+\}$/)) continue;
 
-					var selector = this.options[prop],
-						propFunc = prop.replace(/^\{|\}$/g,'');
+				var key = name.replace(/^\{|\}$/g,''),
+					val = instanceOptions[name];
 
-					this[propFunc] = (function(instance, selector, propFunc)
-					{
-						if (typeof selector!=="string") return selector;
+				// Augmented selector function
+				if ($.isString(val)) {
+
+					instance[key] = (function(instance, selector, funcName) {
 
 						// Selector shorthand for controllers
-						selector = /^(\.|\#)$/.test(selector) ? selector + propFunc : selector;
+						selector = /^(\.|\#)$/.test(selector) ? selector + funcName : selector;
 
 						// Create selector function
-						var selectorFunc = function(filter)
-						{
-							return filter ? instance.element.find(selector).filter(filter) : instance.element.find(selector);
+						var selectorFunc = function(filter) {
+
+							var elements = instance.element.find(selector);
+
+							if (filter) {
+								elements = elements.filter(filter);
+							}
+
+							return elements;
 						};
 
 						// Keep the selector as a property of the function
@@ -845,35 +793,36 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 						return selectorFunc;
 
-					})(this, selector, propFunc);
+					})(instance, val, key);
+
+				// Else just reference it, e.g. controller instance
+				} else {
+
+					instance[key] = val;
 				}
 			}
 
 			// !-- FOUNDRY HACK --! //
 			// Augment view properties into view functions.
 			// self.view.listItem(useHtml, data, callback);
-
-			var instance = this,
-				views = this.options.view;
+			var views = instanceOptions.view;
 
 			// Prevent augmented functions from being
 			// extended onto the prototype view function.
-			var __view = instance.view;
-
 			instance.view = function() {
-				return __view.apply(this, arguments);
+				return instance.prototype.view.apply(instance, arguments);
 			};
 
 			if ($.isPlainObject(views)) {
 
-				$.each(views, function(view) {
+				for (name in views) {
 
-					instance.view[view] = function() {
+					instance.view[name] = function() {
 
 						var args = $.makeArray(arguments),
 							useHtml = false;
 
-						if (typeof args[0] == "boolean") {
+						if ($.isBoolean(args[0])) {
 							useHtml = args[0];
 							args = args.slice(1);
 						}
@@ -882,13 +831,12 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 						return instance.view.apply(instance, options);
 					}
-
-				});
+				}
 			}
 
 			// !-- FOUNDRY HACK --! //
 			// Instance property override
-			$.extend(this, this.options.controller);
+			$.extend(instance, instanceOptions.controller);
 
 			/**
 			 * @attribute called
@@ -896,10 +844,10 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			 * used for picking the right view in render.
 			 * @hide
 			 */
-			this.called = "init";
+			instance.called = "init";
 
 			// bind all event handlers
-			this.bind();
+			instance._bind();
 
 			/**
 			 * @attribute element
@@ -946,7 +894,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			 *       }
 			 *     }
 			 */
-			return [this.element, this.options].concat(makeArray(arguments).slice(2));
+			return [element, instanceOptions].concat(makeArray(arguments).slice(2));
 			/**
 			 * @function init
 			 *
