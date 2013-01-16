@@ -607,9 +607,17 @@ steal("jquery","jquery/lang/string", function($) {
 			// do namespace stuff
 			if ( fullName ) {
 
+				var root;
+				if (klass && klass.root) {
+					root = klass.root;
+					if ($.isString(root)) {
+						root = getObject(root, window, true);
+					}
+				}
+
 				var parts = fullName.split(/\./),
 					shortName = parts.pop(),
-					current = getObject(parts.join('.'), window, true),
+					current = getObject(parts.join('.'), root || window, true),
 					namespace = current;
 
 				//!steal-remove-start

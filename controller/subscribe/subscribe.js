@@ -28,7 +28,7 @@ steal('jquery/controller', 'jquery/lang/openajax').then(function($) {
 	 * @param {String} selector the subscription name
 	 * @param {String} cb the callback function's name
 	 */
-	$.Controller.processors.subscribe = function( el, event, selector, cb, controller ) {
+	$.Controller.Class.processors.subscribe = function( el, event, selector, cb, controller ) {
 		var subscription = OpenAjax.hub.subscribe(selector, function(){
 			return controller[cb].apply(controller, arguments)
 		});
@@ -48,7 +48,7 @@ steal('jquery/controller', 'jquery/lang/openajax').then(function($) {
 	 * @param {String} message Message name, ex: "Something.Happened".
 	 * @param {Object} data The data sent.
 	 */
-	$.Controller.prototype.publish = function() {
+	$.Controller.Class.prototype.publish = function() {
 		OpenAjax.hub.publish.apply(OpenAjax.hub, arguments);
 	};
 });

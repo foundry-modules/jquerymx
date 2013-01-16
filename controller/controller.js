@@ -29,6 +29,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 		extend = $.extend,
 		Str = $.String,
 		each = $.each,
+		getObject = Str.getObject,
 
 		STR_PROTOTYPE = 'prototype',
 		STR_CONSTRUCTOR = 'constructor',
@@ -331,9 +332,37 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 	 * These methods let you call one controller from another controller.
 	 *
 	 */
-	var controllerNamespace = $.globalNamespace + ".Controller";
+	var controllerRoot = $.globalNamespace + ".Controller";
 
-	$.Class(controllerNamespace,
+	$.Controller = function(name) {
+
+		// !-- FOUNDRY HACK --! //
+		// By default, all controllers are created under the
+		// $.Controller root namespace.
+		var args = makeArray(arguments),
+			_static = {
+				root: controllerRoot
+			},
+			_prototype;
+
+		if (args.length > 3) {
+			// Namespace can be overriden
+			_static = $.extend(_static, args[2]);
+			_prototype = args[3];
+		} else {
+			_prototype = args[2];
+		}
+
+		if (_static.namespace) {
+			name = _static.namespace + "." + name;
+		}
+
+		return $.Controller.Class(name, _static, _prototype);
+	}
+
+	var controllerClass = controllerRoot + ".Class";
+
+	$.Class(controllerClass,
 	/**
 	 * @Static
 	 */
@@ -354,57 +383,16 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 		setup: function(baseClass, name) {
 
 			// Allow contollers to inherit "defaults" from superclasses as it done in $.Class
-			// this._super.apply(this, arguments);
-
-			// !-- FOUNDRY HACK --! //
-			// By default, all controllers are created under the
-			// $.Controller namespace.
-			var args = makeArray(arguments),
-				_static = {
-					namespace: controllerNamespace
-				},
-				_prototype;
-
-			if (args.length > 3) {
-				// Namespace can be overriden
-				_static = $.extend(_static, args[2]);
-				_prototype = args[3];
-			} else {
-				_prototype = args[2];
-			}
-
-			if (_static.namespace) {
-				name = _static.namespace + "." + name;
-			}
-
-			this._super.apply(this, [baseClass, name, _static, _prototype]);
+			this._super.apply(this, arguments);
 
 			// if you didn't provide a name, or are controller, don't do anything
-			if (!this.shortName || this.fullName == controllerNamespace ) {
+			if (!this.shortName || this.fullName == controllerClass) {
 				return;
 			}
 
 			// cache the underscored names
 			this._fullName = underscoreAndRemoveController(this.fullName);
 			this._shortName = underscoreAndRemoveController(this.shortName);
-
-			// !-- FOUNDRY HACK --! //
-			// If a prototype factory function was given instead of a prototype object,
-			// we expect the factory function to return the prototype object upon execution
-			// of the factory function. This factory function gets executed during the
-			// instantiation of the controller.
-
-			var proto;
-
-			if (isFunction(_prototype)) {
-
-				// Remap the factory function
-				this.protoFactory = _prototype;
-
-				// Attempt to execute the prototype factory once to get
-				// a list of actions that we can cache first.
-				proto = this.protoFactory.call(this, null);
-			}
 
 			var controller = this,
 				/**
@@ -428,7 +416,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 				// !-- FOUNDRY HACK --! //
 				// Add a reference to the fullname
 				var _fullName = this._fullName;
-				var pluginname = this.pluginName
+				var pluginname = this.pluginName;
 
 				// create jQuery plugin
 				if (!$.fn[pluginname] ) {
@@ -466,16 +454,31 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 				}
 			}
 
+			// !-- FOUNDRY HACK --! //
+			// If a prototype factory function was given instead of a prototype object,
+			// we expect the factory function to return the prototype object upon execution
+			// of the factory function. This factory function gets executed during the
+			// instantiation of the controller.
+
+			var args         = makeArray(arguments),
+				prototype    = this[STR_PROTOTYPE],
+				protoFactory = args[(args.length > 3) ? 3 : 2];
+
+			if (isFunction(protoFactory)) {
+
+				// Remap the factory function
+				this.protoFactory = protoFactory;
+
+				// Attempt to execute the prototype factory once to get
+				// a list of actions that we can cache first.
+				prototype = this.protoFactory.call(this, null);
+			}
+
 			// calculate and cache actions
 			this.actions = {};
 
-			// !-- FOUNDRY HACK --! //
-			// Use prototype returned by prototype factory if exists.
-
-			proto = proto || this[STR_PROTOTYPE];
-
-			for ( funcName in proto ) {
-				if (funcName == 'constructor' || !isFunction(proto[funcName]) ) {
+			for (funcName in prototype) {
+				if (funcName == 'constructor' || !isFunction(prototype[funcName]) ) {
 					continue;
 				}
 				if ( this._isAction(funcName) ) {
@@ -1204,7 +1207,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 		_set_called: true
 	});
 
-	var processors = $.Controller.processors,
+	var processors = $.Controller.Class.processors,
 
 	//------------- PROCESSSORS -----------------------------
 	//processors do the binding.  They return a function that
@@ -1230,7 +1233,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 	var getController = function(controller) {
 		if (isString(controller)) {
-			controller = $.String.getObject(controller);
+			controller = getObject(controller) || getObject(controllerNamespace + "." + controller);
 		};
 		if (isController(controller)) {
 			return controller;
@@ -1248,7 +1251,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 	};
 
 	$.isController = function(controller) {
-		return isController(getController(controller));
+		return !!getController(controller);
 	}
 
 	$.isControllerInstance = function(instance) {
