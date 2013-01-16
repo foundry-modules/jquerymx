@@ -1238,7 +1238,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 	var getController = function(controller) {
 		if (isString(controller)) {
-			controller = getObject(controller) || getObject(controllerNamespace + "." + controller);
+			controller = getObject(controller) || getObject(controllerRoot + "." + controller);
 		};
 		if (isController(controller)) {
 			return controller;
