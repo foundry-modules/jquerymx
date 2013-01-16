@@ -8,7 +8,7 @@ steal('jquery/dom/route','jquery/controller', function($){
 	 * @param {Object} selector
 	 * @param {Object} cb
 	 */
-	$.Controller.processors.route = function(el, event, selector, funcName, controller){
+	$.Controller.Class.processors.route = function(el, event, selector, funcName, controller){
 		$.route(selector||"")
 		var batchNum;
 		var check = function(ev, attr, how){
