@@ -25,6 +25,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 		makeArray = $.makeArray,
 		isArray = $.isArray,
 		isFunction = $.isFunction,
+		isString = $.isString,
 		extend = $.extend,
 		Str = $.String,
 		each = $.each,
@@ -413,7 +414,6 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 				 * default value.
 				 *
 				 *     $.Controller("Mxui.Layout.Fill",{
-				 *       isPlugin: true,
 				 *       pluginName: "fillWith"
 				 *     },{});
 				 *
@@ -422,14 +422,13 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 				funcName, forLint;
 
 			// !-- FOUNDRY HACK --! //
-			// Make creation of jQuery plugin explicit.
-			// Use  {isPlugin: true} flag in controller's static prop to enable it.
+			// Make creation of jQuery plugin by testing the existence of pluginName.
+			if (isString(this.pluginName)) {
 
-			if (this.isPlugin) {
 				// !-- FOUNDRY HACK --! //
 				// Add a reference to the fullname
 				var _fullName = this._fullName;
-				var pluginname = this.pluginName || this._fullName;
+				var pluginname = this.pluginName
 
 				// create jQuery plugin
 				if (!$.fn[pluginname] ) {
@@ -467,12 +466,6 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 				}
 			}
 
-			// make sure listensTo is an array
-			//!steal-remove-start
-			if (!isArray(this.listensTo) ) {
-				throw "listensTo is not an array in " + this.fullName;
-			}
-			//!steal-remove-end
 			// calculate and cache actions
 			this.actions = {};
 
@@ -543,41 +536,27 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			}
 
 			// !-- FOUNDRY HACK --! //
-			// Ability to bind an event to multiple elements.
-			// "[{element1}, {element2}] click"
+			// Ability to bind custom event to self.
+			// "{self} customEvent"
+			methodName = methodName.replace("{self} ", "");
 
-			var ready = [], evt, parts;
+			// If we have options, run sub to replace templates "{}" with a value from the options
+			// or the window
+			var convertedName = options ? Str.sub(methodName, [options, window]) : methodName,
 
-			if (methodName.match(/^\[.+\]/)) {
-				methodNames = methodName.replace(/^\[|\]/g,'').replace(', ',',').split(' ');
-				evt = methodNames.pop();
-				methodNames = methodNames[0].split(',');
-			} else {
-				methodNames = [methodName];
-			}
+				// If a "{}" resolves to an object, convertedName will be an array
+				arr = isArray(convertedName),
 
-			$.each(methodNames, function(i, methodName) {
+				// get the parts of the function = [convertedName, delegatePart, eventPart]
+				parts = (arr ? convertedName[1] : convertedName).match(breaker),
+				event = parts[2],
+				processor = processors[event] || basicProcessor;
 
-				// !-- FOUNDRY HACK --! //
-				// Ability to bind custom event to self.
-				// "{self} customEvent"
-				methodName = methodName.replace("{self} ", "");
-
-				var convertedName = options ? Str.sub(methodName, [options, window]) : methodName,
-					arr = isArray(convertedName),
-					parts = (evt) ? [convertedName + ' ' + evt, convertedName, evt] :
-					                (arr ? convertedName[1] : convertedName).match(breaker),
-					event = evt || parts[2],
-					processor = processors[event] || basicProcessor;
-
-				ready.push({
-					processor: processor,
-					parts: parts,
-					delegate : arr ? convertedName[0] : undefined
-				});
-			});
-
-			return ready;
+			return {
+				processor: processor,
+				parts: parts,
+				delegate : arr ? convertedName[0] : undefined
+			};
 		},
 
 		/**
@@ -714,11 +693,10 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 		 * @return {Array} return an array if you wan to change what init is called with. By
 		 * default it is called with the element and options passed to the controller.
 		 */
-		setup: function(element, options) {
+		setup: function(elem, options) {
 
-			var instance = this,
-				instanceOptions,
-				Class = instance[STR_CONSTRUCTOR],
+			var instance  = this,
+				Class     = instance[STR_CONSTRUCTOR],
 				prototype = instance[STR_PROTOTYPE];
 
 			// !-- FOUNDRY HACK --! //
@@ -735,19 +713,23 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 			var _fullName = Class._fullName;
 
-			instance.element = element = $(element);
-
-			// !-- FOUNDRY HACK --! //
-			// Use _fullName instead
-			(data(element) || data(element, {}))[_fullName] = instance;
-
 			// !-- FOUNDRY HACK --! //
 			// Unique id for every controller instance.
 			instance.instanceId = $.uid(_fullName + '_');
 
+			// !-- FOUNDRY HACK --! //
+			// Use _fullName instead
+			// This actually does $(e).data("controllers", _fullName);
+			(data(elem) || data(elem, {}))[_fullName] = instance;
+
+			// Convert HTML element into a jQuery element
+			// and store it inside instance.element.
+			var element = instance.element
+						= $(elem);
+
 			// !-- FOUNDRY HACK --~ //
 			// Add a unique direct selector for every controller instance.
-			if (element.data("directSelector")===undefined) {
+			if (!element.data("directSelector")) {
 				var selector = $.uid("DS");
 				element
 					.addClass(selector)
@@ -756,7 +738,8 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 			// !-- FOUNDRY HACK --! //
 			// Added defaultOptions as an alternative to defaults
-			instance.options = instanceOptions = extend(true, {}, Class.defaults, Class.defaultOptions, options);
+			var instanceOptions = instance.options
+								= extend(true, {}, Class.defaults, Class.defaultOptions, options);
 
 			// !-- FOUNDRY HACK --! //
 			// Augment selector properties into selector functions.
@@ -769,7 +752,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 					val = instanceOptions[name];
 
 				// Augmented selector function
-				if ($.isString(val)) {
+				if (isString(val)) {
 
 					instance[key] = (function(instance, selector, funcName) {
 
@@ -807,32 +790,21 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			// self.view.listItem(useHtml, data, callback);
 			var views = instanceOptions.view;
 
-			// Prevent augmented functions from being
-			// extended onto the prototype view function.
-			instance.view = function() {
-				return instance.prototype.view.apply(instance, arguments);
-			};
+			each(views || {}, function(name, view){
 
-			if ($.isPlainObject(views)) {
+				instance.view[name] = function(useHtml) {
 
-				for (name in views) {
+					var args = makeArray(arguments);
 
-					instance.view[name] = function() {
-
-						var args = $.makeArray(arguments),
-							useHtml = false;
-
-						if ($.isBoolean(args[0])) {
-							useHtml = args[0];
-							args = args.slice(1);
-						}
-
-						var options = [useHtml, view].concat(args);
-
-						return instance.view.apply(instance, options);
+					if ($.isBoolean(useHtml)) {
+						args = args.slice(1);
+					} else {
+						useHtml = false;
 					}
+
+					return instance.view.apply(instance, [useHtml, name].concat(args));
 				}
-			}
+			});
 
 			// !-- FOUNDRY HACK --! //
 			// Instance property override
@@ -935,55 +907,54 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 		 * @return {Integer} The id of the binding in this._bindings
 		 */
 
+		on: function(el, eventName, func) {
+			// if ( typeof el == 'string' ) {
+			// 	func = eventName;
+			// 	eventName = el;
+			// 	el = this.element;
+			// }
+			// return this._binder(el, eventName, func);
+		},
+
+		off: function() {
+
+		},
+
 		// !-- FOUNDRY HACK --! //
 		// Rename this.bind from this_bind. Conflict with mootools.
-		_bind: function( el, eventName, func ) {
-			if( el === undefined ) {
-				//adds bindings
-				this._bindings = [];
-				//go through the cached list of actions and use the processor to bind
+		// _bind: function( el, eventName, func ) {
+		_bind: function() {
 
-				var cls = this[STR_CONSTRUCTOR],
-					bindings = this._bindings,
-					actions = cls.actions,
-					element = this.element;
+			var instance = this,
+				Class    = instance[STR_CONSTRUCTOR],
+				actions  = Class.actions,
+				bindings = instance._bindings = [],
+				element  = instance.element;
 
-				for ( funcName in actions ) {
-					if ( actions.hasOwnProperty(funcName) ) {
+			each(actions || {}, function(name, action){
 
-						// !-- FOUNDRY HACK --! //
-						// Ability to bind an event to multiple elements.
-						// "[{element1}, {element2}] click"
+				if (!actions.hasOwnProperty(name)) return;
 
-						readyList = cls.actions[funcName] || cls._action(funcName, this.options);
+				var ready = Class.actions[name] || Class._action(name, instance.options);
 
-						var self = this;
-						$.each(readyList, function(i, ready) {
-							self._bindings.push(
-								ready.processor(ready.delegate || element,
-												ready.parts[2],
-									            ready.parts[1],
-									            funcName,
-									            self)
-							);
-						});
-					}
-				}
+				bindings.push(
+					ready.processor(
+						ready.delegate || element,
+						ready.parts[2],
+						ready.parts[1],
+						name,
+						instance
+					)
+				);
+			});
 
-				//setup to be destroyed ... don't bind b/c we don't want to remove it
-				var destroyCB = shifter(this,"destroy");
-				element.bind("destroyed", destroyCB);
-				bindings.push(function( el ) {
-					$(el).unbind("destroyed", destroyCB);
-				});
-				return bindings.length;
-			}
-			if ( typeof el == 'string' ) {
-				func = eventName;
-				eventName = el;
-				el = this.element;
-			}
-			return this._binder(el, eventName, func);
+			//setup to be destroyed ... don't bind b/c we don't want to remove it
+			var destroyCB = shifter(this,"destroy");
+			element.bind("destroyed", destroyCB);
+			bindings.push(function( el ) {
+				$(el).unbind("destroyed", destroyCB);
+			});
+			return bindings.length;
 		},
 		_binder: function( el, eventName, func, selector ) {
 			if ( typeof func == 'string' ) {
@@ -1166,8 +1137,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 				} catch(e) {};
 				return;
 			}
-			var self = this,
-				fname = this[STR_CONSTRUCTOR].pluginName || this[STR_CONSTRUCTOR]._fullName,
+			var fname = this[STR_CONSTRUCTOR]._fullName,
 				controllers;
 
 			// mark as destroyed
@@ -1205,7 +1175,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 		// Quick acccess to views.
 		view: function() {
 
-			var args = $.makeArray(arguments),
+			var args = makeArray(arguments),
 				name,
 				options = args,
 				useHtml = false,
@@ -1259,10 +1229,12 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 	//controllers can be strings or classes
 
 	var getController = function(controller) {
-		if (typeof controller === "string") {
+		if (isString(controller)) {
 			controller = $.String.getObject(controller);
 		};
-		return (isController(controller)) ? controller : undefined;
+		if (isController(controller)) {
+			return controller;
+		};
 	}
 
 	var isController = function(controller) {
@@ -1271,7 +1243,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 	var flattenControllers = function(controllers) {
 		return $.map(controllers, function(controller){
-			return ($.isArray(controller)) ? flatten(controller) : getController(controller);
+			return (isArray(controller)) ? flatten(controller) : getController(controller);
 		});
 	};
 
@@ -1287,7 +1259,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 		if (!controllers) return false;
 
-		if (!$.isArray(controllers)) {
+		if (!isArray(controllers)) {
 			controllers = [controllers];
 		}
 
@@ -1314,16 +1286,14 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 				var controllers = $.data(this, "controllers");
 
-				for (_fullName in controllers) {
+				each(controllers || {}, function(_fullName, instance){
 
-					if (!controllers.hasOwnProperty(_fullName)) continue;
-
-					instance = controllers[_fullName];
+					if (!controllers.hasOwnProperty(_fullName)) return;
 
 					if (!candidates.length || $.isControllerOf(instance, candidates)) {
 						instances.push(instance);
 					}
-				}
+				});
 			});
 
 			return instances;
@@ -1384,7 +1354,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 				controller = controller.fullName;
 			}
 
-			if (!$._.isString(controller)) {
+			if (!isString(controller)) {
 				return task.reject();
 			}
 

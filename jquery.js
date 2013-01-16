@@ -9248,6 +9248,8 @@ jQuery.globalNamespace = "Foundry123981293123";
 
 jQuery.module = function(){ return jQuery.Deferred(); };
 
+jQuery.isString = function(){};
+
 window[jQuery.globalNamespace] = window.Foundry = window.jQuery = window.$ = jQuery;
 
 // Expose jQuery as an AMD module, but only for AMD loaders that
