@@ -940,6 +940,11 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 				var ready = Class.actions[name] || Class._action(name, instance.options);
 
+				// Translate to the controller element first
+				if ($.isControllerInstance(ready.delegate)) {
+					ready.delegate = ready.delegate.element;
+				}
+
 				bindings.push(
 					ready.processor(
 						ready.delegate || element,
@@ -1255,7 +1260,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 	}
 
 	$.isControllerInstance = function(instance) {
-		return instance[STR_CONSTRUCTOR] && isController(instance[STR_CONSTRUCTOR]);
+		return instance && instance[STR_CONSTRUCTOR] && isController(instance[STR_CONSTRUCTOR]);
 	}
 
 	$.isControllerOf = function(instance, controllers) {
