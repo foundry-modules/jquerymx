@@ -1105,7 +1105,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 		update: function( options ) {
 			extend(this.options, options);
 			this._unbind();
-			this.bind();
+			this._bind();
 		},
 		/**
 		 * Destroy unbinds and undelegates all event handlers on this controller,
