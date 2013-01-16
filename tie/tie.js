@@ -14,7 +14,7 @@ steal('jquery/controller').then(function($) {
  *
  *
  */
-$.Controller($.globalNamespace + ".Tie",{
+$.Controller.Class($.globalNamespace + ".Tie",{
 	setup : function(el){
 		this._super(el,{})
 		return $.makeArray(arguments);

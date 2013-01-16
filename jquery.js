@@ -9243,6 +9243,7 @@ jQuery.each([ "Height", "Width" ], function( i, name ) {
 
 
 // Expose jQuery to the global object
+window.Foundry123981293123 = jQuery;
 
 jQuery.globalNamespace = "Foundry123981293123";
 

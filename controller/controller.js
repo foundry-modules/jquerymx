@@ -345,12 +345,12 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			},
 			_prototype;
 
-		if (args.length > 3) {
+		if (args.length > 2) {
 			// Namespace can be overriden
-			_static = $.extend(_static, args[2]);
-			_prototype = args[3];
-		} else {
+			_static = $.extend(_static, args[1]);
 			_prototype = args[2];
+		} else {
+			_prototype = args[1];
 		}
 
 		if (_static.namespace) {
