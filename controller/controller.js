@@ -658,7 +658,9 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 		 * In [jQuery.Controller.prototype.setup setup] the options passed to the controller
 		 * are merged with defaults.  This is not a deep merge.
 		 */
-		defaults: {}
+		defaults: {},
+
+		hostname: "parent"
 	},
 	/**
 	 * @Prototype
@@ -1218,6 +1220,68 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			html = context.View.apply(context, options);
 
 			return (useHtml) ? html : $(html);
+		},
+
+		plugin: function(name) {
+
+			return this.plugin[name];
+		},
+
+		// addPlugin(name, object, [options]);
+		// The object should consist of a method called destroy();
+
+		// addPlugin(name, function, [options]);
+		// The function should return an object with a method called destroy();
+
+		addPlugin: function(name, plugin, options) {
+
+			// Controller class are also functions,
+			// so this simple test is good enough.
+			if (!isFunction(plugin)) return;
+
+			// Normalize plugin options
+			options = $.extend(true, options, ((this.options.plugin || {})[name] || {}), {element: this.element});
+
+			// Trigger addPlugin event so controller can decorate the options
+			this.trigger("addPlugin", name, plugin, options);
+
+			var pluginInstance;
+
+			// Controller plugins
+			if ($.isController(plugin)) {
+
+				// Subcontrollers should have a way to listen back to host controller
+				options["{" + this.Class.hostname + "}"] = this;
+
+				pluginInstance = options.element.addController(plugin, options);
+
+			// Custom plugins
+			} else {
+				pluginInstance = plugin(this, options);
+			}
+
+			// If pluginInstance could not be created, stop.
+			if (!pluginInstance) return;
+
+			// Register plugin
+			this.plugin[name] = pluginInstance;
+
+			// Trigger registerPlugin
+			this.triger("registerPlugin", name, pluginInstance, options);
+
+			return pluginInstance;
+		},
+
+		removePlugin: function(name) {
+
+			var plugin = this.plugin[name];
+
+			// Trigger removePlugin
+			this.trigger("removePlugin", name, plugin);
+
+			delete this.plugin[name];
+
+			return $.isFunction(plugin.destroy) ? plugin.destroy() : null;
 		},
 
 		//tells callback to set called on this.  I hate this.
