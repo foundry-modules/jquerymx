@@ -1248,8 +1248,13 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 	//used to determine if a controller instance is one of controllers
 	//controllers can be strings or classes
 
+	var normalizeController = function(controller) {
+		return controller.replace("$.Controller", controllerRoot);
+	}
+
 	var getController = function(controller) {
 		if (isString(controller)) {
+			controller = normalizeController(controller);
 			controller = getObject(controller) || getObject(controllerRoot + "." + controller);
 		};
 		if (isController(controller)) {
@@ -1263,7 +1268,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 	var flattenControllers = function(controllers) {
 		return $.map(controllers, function(controller){
-			return (isArray(controller)) ? flatten(controller) : getController(controller);
+			return (isArray(controller)) ? flattenControllers(controller) : getController(controller);
 		});
 	};
 
@@ -1337,6 +1342,15 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			return this;
 		},
 
+		hasController: function(controller) {
+
+			var _fullName =
+				(getController(controller) || {})._fullName ||
+				(isString(controller) ? underscoreAndRemoveController(normalizeController(controller)) : "");
+
+			return (!_fullName) ? false : (($(this).data("controllers") || {}).hasOwnProperty(_fullName));
+		},
+
 		addController: function(controller, options, callback) {
 
 			var Controller = getController(controller);
@@ -1346,6 +1360,15 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			var instances = [];
 
 			this.each(function(){
+
+				// Just return existing instance
+				var existingInstance = $(this).controller(controller);
+				if (existingInstance) {
+					instances.push(existingInstance);
+					return;
+				}
+
+				// Or create a new instance
 				var instance = new Controller(this, options);
 				isFunction(callback) && callback.apply(instance, [$(this), instance]);
 				instances.push(instance);
