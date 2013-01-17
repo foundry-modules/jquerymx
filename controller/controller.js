@@ -910,17 +910,29 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 		 * @return {Integer} The id of the binding in this._bindings
 		 */
 
-		on: function(el, eventName, func) {
-			// if ( typeof el == 'string' ) {
-			// 	func = eventName;
-			// 	eventName = el;
-			// 	el = this.element;
-			// }
-			// return this._binder(el, eventName, func);
-		},
+		on: function(eventName) {
 
-		off: function() {
+			var args = makeArray(arguments),
+				element = this.element,
+				length = args.length;
 
+			// Listen to the controller's element
+			// on(eventName, eventHandler);
+			if (length==2) {
+				return this._binder(element, eventName, args[1]);
+			}
+
+			// Listen to controller's child elements matching the selector
+			// on(eventName, selector, eventHandler);
+			if (length==3) {
+				return this._binder(element, eventName, args[2], args[1]);
+			}
+
+			// Listen to an element from another element
+			// on(eventName, element, selector, eventHandler);
+			if (length==4) {
+				return this._binder($(args[1]), eventName, args[3], args[2]);
+			}
 		},
 
 		// !-- FOUNDRY HACK --! //
