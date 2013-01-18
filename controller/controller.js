@@ -1277,7 +1277,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			if (!name) return;
 
 			// This means we are working with plugin shorthand
-			if ($.isPlainObject(plugin)) {
+			if ((!plugin && !options) || $.isPlainObject(plugin)) {
 				options = plugin;
 				plugin = [this.Class.root, this.Class.fullName, $.String.capitalize(name)].join(".");
 			}
