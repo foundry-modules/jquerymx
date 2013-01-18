@@ -1162,6 +1162,11 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			var fname = this[STR_CONSTRUCTOR]._fullName,
 				controllers;
 
+			// remove all plugins
+			for (pname in this.plugin.registry) {
+				this.removePlugin(pname);
+			}
+
 			// mark as destroyed
 			this._destroyed = true;
 
@@ -1222,9 +1227,11 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			return (useHtml) ? html : $(html);
 		},
 
+		_plugin: {},
+
 		plugin: function(name) {
 
-			return this.plugin[name];
+			return this._plugin[name];
 		},
 
 		// addPlugin(name, object, [options]);
@@ -1264,10 +1271,10 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			if (!pluginInstance) return;
 
 			// Register plugin
-			this.plugin[name] = pluginInstance;
+			this._plugin[name] = pluginInstance;
 
 			// Trigger registerPlugin
-			this.triger("registerPlugin", name, pluginInstance, options);
+			this.trigger("registerPlugin", name, pluginInstance, options);
 
 			return pluginInstance;
 		},
@@ -1279,7 +1286,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			// Trigger removePlugin
 			this.trigger("removePlugin", name, plugin);
 
-			delete this.plugin[name];
+			delete this._plugin[name];
 
 			return $.isFunction(plugin.destroy) ? plugin.destroy() : null;
 		},
