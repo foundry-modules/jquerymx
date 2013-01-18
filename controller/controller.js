@@ -1274,6 +1274,19 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 		addPlugin: function(name, plugin, options) {
 
+			if (!name) return;
+
+			// This means we are working with plugin shorthand
+			if ($.isPlainObject(plugin)) {
+				options = plugin;
+				plugin = [this.Class.root, this.Class.fullName, $.String.capitalize(name)].join(".");
+			}
+
+			// If plugin is a string, get the controller from it.
+			if ($.isString(plugin)) {
+				plugin = $.getController(plugin)
+			}
+
 			// Controller class are also functions,
 			// so this simple test is good enough.
 			if (!isFunction(plugin)) return;
@@ -1374,6 +1387,8 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			return (isArray(controller)) ? flattenControllers(controller) : getController(controller);
 		});
 	};
+
+	$.getController = getController;
 
 	$.isController = function(controller) {
 		return !!getController(controller);
