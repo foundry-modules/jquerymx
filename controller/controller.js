@@ -1247,7 +1247,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			if (!isFunction(plugin)) return;
 
 			// Normalize plugin options
-			options = $.extend(true, options, ((this.options.plugin || {})[name] || {}), {element: this.element});
+			options = $.extend(true, {element: this.element}, options, ((this.options.plugin || {})[name] || {}));
 
 			// Trigger addPlugin event so controller can decorate the options
 			this.trigger("addPlugin", name, plugin, options);
