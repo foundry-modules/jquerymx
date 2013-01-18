@@ -1284,7 +1284,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 			// If plugin is a string, get the controller from it.
 			if ($.isString(plugin)) {
-				plugin = $.getController(plugin)
+				plugin = $.getController(plugin);
 			}
 
 			// Controller class are also functions,
