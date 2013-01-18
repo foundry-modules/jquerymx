@@ -84,6 +84,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 		// handles parameterized action names
 		parameterReplacer = /\{([^\}]+)\}/g,
+		controllerReplacer = /\{([^\.]+[\.][^\.]+)\}/g,
 		breaker = /^(?:(.*?)\s)?([\w\.\:>]+)$/,
 		basicProcessor,
 		data = function(el, data){
@@ -545,10 +546,41 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 			// If we have options, run sub to replace templates "{}" with a value from the options
 			// or the window
-			var convertedName = options ? Str.sub(methodName, [options, window]) : methodName,
+			var convertedName = methodName;
 
-				// If a "{}" resolves to an object, convertedName will be an array
-				arr = isArray(convertedName),
+			if (options) {
+
+				var bindingOtherController = false;
+
+				if (controllerReplacer.test(methodName)) {
+
+					var controller, selector = "";
+					convertedName =
+						methodName
+							.replace(controllerReplacer, function(whole, inside){
+								var parts = inside.split(".");
+								controller = options[parts[0]];
+								if ($.isControllerInstance(controller)) {
+									selector = (controller[parts[1]] || {})["selector"];
+								}
+								return selector;
+							})
+							.match(breaker);
+
+					// If there is a selector, this will be true.
+					bindingOtherController = !!selector;
+
+					convertedName = [controller.element].concat(convertedName || []);
+				}
+
+				if (!bindingOtherController) {
+
+					convertedName = Str.sub(methodName, [options, window]);
+				}
+			}
+
+			// If a "{}" resolves to an object, convertedName will be an array
+			var arr = isArray(convertedName),
 
 				// get the parts of the function = [convertedName, delegatePart, eventPart]
 				parts = (arr ? convertedName[1] : convertedName).match(breaker),
