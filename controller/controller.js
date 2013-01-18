@@ -559,7 +559,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 						methodName
 							.replace(controllerReplacer, function(whole, inside){
 								var parts = inside.split(".");
-								controller = options[parts[0]];
+								controller = options["{"+parts[0]+"}"] || {};
 								if ($.isControllerInstance(controller)) {
 									selector = (controller[parts[1]] || {})["selector"];
 								}
