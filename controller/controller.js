@@ -958,8 +958,12 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 			// Listen to controller's child elements matching the selector
 			// on(eventName, selector, eventHandler);
-			if (length==3) {
+			// args[1] == selector, jquery collection or dom node.
+			// args[2] == eventHandler.
+			if (length==3 && isString(args[1])) {
 				return this._binder(element, eventName, args[2], args[1]);
+			} else {
+				return this._binder(args[1], eventName, args[2]);
 			}
 
 			// Listen to an element from another element
