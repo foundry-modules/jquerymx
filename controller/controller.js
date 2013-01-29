@@ -1410,8 +1410,8 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			controllers = [controllers];
 		}
 
-		while (controllers.length) {
-			var controller = getController(controllers.shift());
+		for (var i=0; i<controllers.length; i++) {
+			var controller = getController(controllers[i]);
 			if (instance instanceof controller) return true;
 		}
 
