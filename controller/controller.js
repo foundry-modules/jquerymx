@@ -827,6 +827,14 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			// self.view.listItem(useHtml, data, callback);
 			var views = instanceOptions.view;
 
+			// Prevent augmented functions from being
+			// extended onto the prototype view function.
+			var __view = instance.view;
+
+			instance.view = function() {
+				return __view.apply(this, arguments);
+			};
+
 			each(views || {}, function(name, view){
 
 				instance.view[name] = function(useHtml) {
