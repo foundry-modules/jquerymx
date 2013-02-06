@@ -1307,7 +1307,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			options = $.extend(true, {element: this.element}, options, ((this.options.plugin || {})[name] || {}));
 
 			// Trigger addPlugin event so controller can decorate the options
-			this.trigger("addPlugin", name, plugin, options);
+			this.trigger("addPlugin", [name, plugin, options]);
 
 			var pluginInstance;
 
@@ -1331,7 +1331,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			this._plugin[name] = pluginInstance;
 
 			// Trigger registerPlugin
-			this.trigger("registerPlugin", name, pluginInstance, options);
+			this.trigger("registerPlugin", [name, pluginInstance, options]);
 
 			return pluginInstance;
 		},
@@ -1341,7 +1341,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			var plugin = this.plugin[name];
 
 			// Trigger removePlugin
-			this.trigger("removePlugin", name, plugin);
+			this.trigger("removePlugin", [name, plugin]);
 
 			delete this._plugin[name];
 
