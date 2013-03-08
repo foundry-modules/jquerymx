@@ -1299,29 +1299,54 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 				plugin = $.getController(plugin);
 			}
 
+			var isPluginInstance = $.isControllerInstance(plugin);
+
 			// Controller class are also functions,
 			// so this simple test is good enough.
-			if (!isFunction(plugin)) return;
+			if (!isFunction(plugin) && !isPluginInstance) return;
 
 			// Normalize plugin options
 			options = $.extend(true, {element: this.element}, options, ((this.options.plugin || {})[name] || {}));
 
+			// Determine plugin type
+			var type =
+				((isPluginInstance) ? "instance" :
+				(($.isController(plugin)) ? "controller" : "function"));
+
 			// Trigger addPlugin event so controller can decorate the options
-			this.trigger("addPlugin", [name, plugin, options]);
+			this.trigger("addPlugin", [name, plugin, options, type]);
+
+			// Subcontrollers should have a way to listen back to host controller
+			options["{" + this.Class.hostname + "}"] = this;
 
 			var pluginInstance;
 
-			// Controller plugins
-			if ($.isController(plugin)) {
+			switch(type) {
 
-				// Subcontrollers should have a way to listen back to host controller
-				options["{" + this.Class.hostname + "}"] = this;
+				// Plugin instance
+				case "instance":
 
-				pluginInstance = options.element.addController(plugin, options);
+					pluginInstance = plugin;
 
-			// Custom plugins
-			} else {
-				pluginInstance = plugin(this, options);
+					// Update child plugin with custom plugin options from host
+					plugin.update(options);
+
+					// Host controller should also have a way to listen back to the child controller
+					var hostOptions = {};
+					hostOptions["{" + name + "}"] = pluginInstance;
+
+					this.update(hostOptions);
+					break;
+
+				// Plugin controller
+				case "controller":
+					pluginInstance = options.element.addController(plugin, options);
+					break;
+
+				// Plugin function
+				case "function":
+					pluginInstance = plugin(this, options);
+					break;
 			}
 
 			// If pluginInstance could not be created, stop.
@@ -1331,7 +1356,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			this._plugin[name] = pluginInstance;
 
 			// Trigger registerPlugin
-			this.trigger("registerPlugin", [name, pluginInstance, options]);
+			this.trigger("registerPlugin", [name, pluginInstance, options, type]);
 
 			return pluginInstance;
 		},
