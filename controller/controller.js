@@ -1271,11 +1271,11 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			return (useHtml) ? html : $(html);
 		},
 
-		_plugin: {},
+		pluginInstances: {},
 
-		plugin: function(name) {
+		getPlugin: function(name) {
 
-			return this._plugin[name];
+			return this.pluginInstances[name];
 		},
 
 		// addPlugin(name, object, [options]);
@@ -1353,7 +1353,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			if (!pluginInstance) return;
 
 			// Register plugin
-			this._plugin[name] = pluginInstance;
+			this.pluginInstances[name] = pluginInstance;
 
 			// Trigger registerPlugin
 			this.trigger("registerPlugin", [name, pluginInstance, options, type]);
@@ -1363,14 +1363,30 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 		removePlugin: function(name) {
 
-			var plugin = this.plugin[name];
+			var plugin = this.getPlugin(name);
 
 			// Trigger removePlugin
 			this.trigger("removePlugin", [name, plugin]);
 
-			delete this._plugin[name];
+			delete this.pluginInstances[name];
 
 			return $.isFunction(plugin.destroy) ? plugin.destroy() : null;
+		},
+
+		invokePlugin: function(name, method, args) {
+
+			var plugin = this.getPlugin(name);
+
+			// If plugin not exist, stop.
+			if (!plugin) return;
+
+			// If plugin method not exist, stop.
+			if (!$.isFunction(plugin[method])) return;
+
+			// Let any third party modify the arguments if required
+			this.trigger("invokePlugin", [name, plugin, args]);
+
+			return plugin[method].apply(this, args);
 		},
 
 		//tells callback to set called on this.  I hate this.
