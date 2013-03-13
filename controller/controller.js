@@ -1207,7 +1207,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 				controllers;
 
 			// remove all plugins
-			for (pname in this.plugin.registry) {
+			for (pname in this.pluginInstances) {
 				this.removePlugin(pname);
 			}
 
