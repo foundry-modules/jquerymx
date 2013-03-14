@@ -855,6 +855,9 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			// Instance property override
 			$.extend(instance, instanceOptions.controller);
 
+			// !--- FOUNDRY HACK --! //
+			instance.pluginInstances = {};
+
 			/**
 			 * @attribute called
 			 * String name of current function being called on controller instance.  This is
@@ -1270,8 +1273,6 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 			return (useHtml) ? html : $(html);
 		},
-
-		pluginInstances: {},
 
 		getPlugin: function(name) {
 
