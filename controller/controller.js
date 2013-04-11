@@ -811,6 +811,25 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 						// Keep the selector as a property of the function
 						selectorFunc.selector = selector;
 
+						selectorFunc.css = function() {
+
+							var cssRule = selectorFunc.cssRule;
+
+							if (!cssRule) {
+
+								var directSelector = element.data("directSelector"),
+
+									ruleSelector = $.map(selector.split(","), function(selector) {
+														return directSelector + " " + selector
+													});
+
+								cssRule = selectorFunc.cssRule = $.cssRule(ruleSelector);
+								cssRule.important = true;
+							}
+
+							return (arguments.length) ? cssRule.css.apply(cssRule, arguments) : cssRule;
+						};
+
 						return selectorFunc;
 
 					})(instance, val, key);
