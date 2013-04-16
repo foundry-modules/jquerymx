@@ -1350,12 +1350,6 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 					// Update child plugin with custom plugin options from host
 					plugin.update(options);
-
-					// Host controller should also have a way to listen back to the child controller
-					var hostOptions = {};
-					hostOptions["{" + name + "}"] = pluginInstance;
-
-					this.update(hostOptions);
 					break;
 
 				// Plugin controller
@@ -1374,6 +1368,15 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 			// Register plugin
 			this.pluginInstances[name] = pluginInstance;
+
+			// Host controller should also have a way to listen back to the child controller
+			if (type!=="function") {
+
+				var hostOptions = {};
+				hostOptions["{" + name + "}"] = pluginInstance;
+
+				this.update(hostOptions);
+			}
 
 			// Trigger registerPlugin
 			this.trigger("registerPlugin", [name, pluginInstance, options, type]);
