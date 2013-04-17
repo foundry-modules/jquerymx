@@ -1388,6 +1388,8 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 			var plugin = this.getPlugin(name);
 
+			if (!plugin) return;
+
 			// Trigger removePlugin
 			this.trigger("removePlugin", [name, plugin]);
 
