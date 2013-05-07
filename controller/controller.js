@@ -1414,6 +1414,74 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			return plugin[method].apply(this, args);
 		},
 
+		getMessageGroup: function() {
+
+			// Find parent element
+			var messageGroup = ($.isFunction(this.messageGroup)) ? this.messageGroup() : this.element.find("[data-message-group]");
+
+			if (messageGroup.length < 1) {
+				messageGroup = $("<div data-message-group></div>").prependTo(this.element);
+			}
+
+			return messageGroup;
+		},
+
+		setMessage: function(message, type) {
+
+			// Normalize arguments
+			var defaultOptions = {
+					type   : "warning", // type: info, error, success
+					message: "",
+					parent : this.getMessageGroup(),
+					element: $('<div class="alert fade in"><button type="button" class="close" data-dismiss="alert">×</button></div>')
+				},
+				userOptions = {},
+				isDeferred = $.isDeferred(message);
+
+			// Normalize user options
+			if ($.isPlainObject(message) && !isDeferred) {
+				userOptions = message;
+			} else {
+				userOptions = {
+					message: message,
+					type   : type || "warning"
+				}
+			}
+
+			var options = $.extend({}, defaultOptions, userOptions),
+				element = options.element;
+
+			if ($.isDeferred(message)) {
+
+				var myself = arguments.callee,
+					context = this;
+
+				message.done(function(message, type) {
+					options.message = message;
+					options.type = type || "warning";
+					myself.call(context, options);
+					element.show();
+				});
+
+			} else {
+
+				element
+					.addClass("alert-" + options.type)
+					.append(options.message);
+
+				if ($('html').has(element).length < 1) {
+					element.appendTo(options.parent);
+				}
+			}
+
+			return element;
+		},
+
+		clearMessage: function() {
+
+			this.getMessageGroup().empty();
+		},
+
 		//tells callback to set called on this.  I hate this.
 		_set_called: true
 	});
