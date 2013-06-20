@@ -1290,7 +1290,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 			html = context.View.apply(context, options);
 
-			return (useHtml) ? html : $($.parseHTML(html));
+			return (useHtml) ? html : $($.parseHTML($.trim(html)));
 		},
 
 		getPlugin: function(name) {
