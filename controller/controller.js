@@ -1219,10 +1219,8 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 		 *
 		 */
 		destroy: function() {
+			
 			if ( this._destroyed ) {
-				try {
-					console.error(this[STR_CONSTRUCTOR].shortName + " controller already deleted");
-				} catch(e) {};
 				return;
 			}
 			var fname = this[STR_CONSTRUCTOR]._fullName,
