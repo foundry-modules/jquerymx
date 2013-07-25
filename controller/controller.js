@@ -1061,8 +1061,11 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 		},
 		// !-- FOUNDRY HACK --! //
 		// Element event triggering
-		trigger: function() {
-			return this.element.trigger.apply(this.element, arguments);
+		trigger: function(name) {
+			var el = this.element,
+				event = jQuery.Event(name);
+				el.trigger.apply(el, [event].concat($.makeArray(arguments).slice(1)));
+			return event;
 		},
 		/**
 		 * Delegate will delegate on an elememt and will be undelegated when the controller is removed.
