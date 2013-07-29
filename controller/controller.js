@@ -888,6 +888,17 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			// bind all event handlers
 			instance._bind();
 
+			var __init = instance.init || $.noop;
+
+			// !-- FOUNDRY HACK --! //
+			// Trigger init event when controller is created.		
+			instance.init = function(){
+				instance.init = __init;
+				result = __init.apply(instance, arguments);
+				instance.trigger("init." + Class.fullName.toLowerCase(), [instance]);
+				return result;
+			}
+
 			/**
 			 * @attribute element
 			 * The controller instance's delegated element. This
