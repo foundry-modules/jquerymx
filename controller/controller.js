@@ -1299,6 +1299,34 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			return this.pluginInstances[name];
 		},
 
+		addSubscriber: function(instance) {
+
+			var instances = ($.isArray(instance)) ? instance : [instance || {}];
+
+			// Prep options
+			var host = this,
+				hostname = this.Class.hostname,
+				options = {};
+				options["{" + hostname + "}"] = host;
+
+			$.map(instances, function(instance, i){
+
+				// If this is not a controller instance.
+				if (!$.isControllerInstance(instance)) return false;
+
+				// If instance is already a subscriber,skip.
+				if (instance.options[hostname]===this) return instance;
+
+				// Also map itself as a method name
+				instance[hostname] = host;
+
+				// Attach publisher to subscriber
+				return instance.update(options);
+			});
+
+			return instances;
+		},		
+
 		// addPlugin(name, object, [options]);
 		// The object should consist of a method called destroy();
 
@@ -1337,8 +1365,10 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			// Trigger addPlugin event so controller can decorate the options
 			this.trigger("addPlugin", [name, plugin, options, type]);
 
+			var hostname = this.Class.hostname;
+
 			// Subcontrollers should have a way to listen back to host controller
-			options["{" + this.Class.hostname + "}"] = this;
+			options["{" + hostname + "}"] = this;
 
 			var pluginInstance;
 
@@ -1351,6 +1381,8 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 					// Update child plugin with custom plugin options from host
 					plugin.update(options);
+
+					plugin[hostname] = this;
 					break;
 
 				// Plugin controller
