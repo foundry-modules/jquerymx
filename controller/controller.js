@@ -1063,7 +1063,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 		// Element event triggering
 		trigger: function(name) {
 			var el = this.element,
-				event = jQuery.Event(name);
+				event = $.Event(name);
 				el.trigger.apply(el, [event].concat($.makeArray(arguments).slice(1)));
 			return event;
 		},
