@@ -1073,9 +1073,13 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 		// !-- FOUNDRY HACK --! //
 		// Element event triggering
 		trigger: function(name) {
-			var el = this.element,
-				event = $.Event(name);
+
+			var el = this.element;
+			if (!el) return;
+
+			var event = $.Event(name);
 				el.trigger.apply(el, [event].concat($.makeArray(arguments).slice(1)));
+
 			return event;
 		},
 		/**
