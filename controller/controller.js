@@ -1264,7 +1264,9 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 			$(this).triggerHandler("destroyed"); //in case we want to know if the controller is removed
 
-			this.element = null;
+			// !-- FOUNDRY HACK --! //
+			// Reassign this.element to an empty jQuery element instead.
+			this.element = $();
 		},
 		/**
 		 * Queries from the controller's element.
