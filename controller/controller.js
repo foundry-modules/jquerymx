@@ -1675,6 +1675,9 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 			this.each(function(){
 
+				// Do not add controller on script node or non-element nodes.
+				if (this.nodeType!==1 || this.nodeName=="SCRIPT") return;				
+
 				// Just return existing instance
 				var existingInstance = $(this).controller(controller);
 				if (existingInstance) {
