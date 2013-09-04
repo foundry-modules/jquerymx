@@ -1483,7 +1483,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 					type   : "warning", // type: info, error, success
 					message: "",
 					parent : this.getMessageGroup(),
-					element: $('<div class="alert fade in"><button type="button" class="close" data-dismiss="alert">×</button></div>')
+					element: $('<div class="alert fade in"><button type="button" class="close" data-foundry-dismiss="alert">×</button></div>')
 				},
 				userOptions = {},
 				isDeferred = $.isDeferred(message);
