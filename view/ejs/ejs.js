@@ -535,7 +535,7 @@ steal('jquery/view', 'jquery/lang/string/rsplit').then(function($) {
 
 			// !-- FOUNDRY HACK --! //
 			// Removed //@ sourceURL as it will break with conditional compilation turned on in IE.
-			myEval.call(out, 'this.fn = (function(_CONTEXT,_VIEW){' + out.out + '});');
+			myEval.call(out, 'this.fn = (function(_CONTEXT,_VIEW){ var $ = ' + $.globalNamespace + ';' + out.out + '});');
 
 			return out;
 		};
