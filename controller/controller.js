@@ -426,7 +426,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 						var args = makeArray(arguments);
 
 						// Returning controller instance if it exists
-						if ($.isString(options) && options==="instance") {
+						if ($.isString(options) && options==="controller") {
 
 							var controllers = data(this[0]),
 								instance = controllers && controllers[_fullName];
