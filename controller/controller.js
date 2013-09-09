@@ -423,10 +423,17 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 				if (!$.fn[pluginname] ) {
 					$.fn[pluginname] = function( options ) {
 
-						var args = makeArray(arguments),
-							//if the arg is a method on this controller
-							isMethod = typeof options == "string" && isFunction(controller[STR_PROTOTYPE][options]),
-							meth = args[0];
+						var args = makeArray(arguments);
+
+						// Returning controller instance if it exists
+						if ($.isString(options) && options==="instance") {
+
+							var controllers = data(this[0]),
+								instance = controllers && controllers[_fullName];
+
+							return instance;
+						}
+
 						return this.each(function() {
 							//check if created
 							var controllers = data(this),
@@ -435,16 +442,19 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 								// !-- FOUNDRY HACK --! //
 								// Check using controller full name
-								plugin = controllers && controllers[_fullName];
+								instance = controllers && controllers[_fullName];
 
-							if ( plugin ) {
-								if ( isMethod ) {
-									// call a method on the controller with the remaining args
-									plugin[meth].apply(plugin, args.slice(1));
-								} else {
-									// call the plugin's update method
-									plugin.update.apply(plugin, args);
+							if (instance) {
+
+								// call a method on the controller with the remaining args
+								if ($.isString(options)) {
+									var method = instance[options];
+									$.isFunction(method) && method.apply(instance, args.slice(1));
+									return;
 								}
+
+								// call the plugin's update method
+								instance.update.apply(instance, args);
 
 							} else {
 								//create a new controller instance
