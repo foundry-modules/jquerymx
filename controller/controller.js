@@ -747,12 +747,26 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 				prototype = instance[STR_PROTOTYPE];
 
 			// !-- FOUNDRY HACK --! //
+			// Unique id for every controller instance.
+			instance.instanceId = $.uid(_fullName + '_');
+
+			// !-- FOUNDRY HACK --! //
+			// Added defaultOptions as an alternative to defaults
+			var instanceOptions = instance.options
+								= extend(true, {}, Class.defaults, Class.defaultOptions, options);
+
+			// Convert HTML element into a jQuery element
+			// and store it inside instance.element.
+			var element = instance.element
+						= $(elem);												
+
+			// !-- FOUNDRY HACK --! //
 			// Execute factory function if exists, extends the properties
 			// of the returned object onto the instance.
 			if (Class.protoFactory) {
 
 				// This is where "self" keyword is passed as first argument.
-				prototype = Class.protoFactory.apply(Class, [instance]);
+				prototype = Class.protoFactory.apply(Class, [instance, instanceOptions, element]);
 
 				// Extend the properties of the prototype object onto the instance.
 				extend(true, instance, prototype);
@@ -761,18 +775,9 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			var _fullName = Class._fullName;
 
 			// !-- FOUNDRY HACK --! //
-			// Unique id for every controller instance.
-			instance.instanceId = $.uid(_fullName + '_');
-
-			// !-- FOUNDRY HACK --! //
 			// Use _fullName instead
 			// This actually does $(e).data("controllers", _fullName);
 			(data(elem) || data(elem, {}))[_fullName] = instance;
-
-			// Convert HTML element into a jQuery element
-			// and store it inside instance.element.
-			var element = instance.element
-						= $(elem);
 
 			// !-- FOUNDRY HACK --~ //
 			// Add a unique direct selector for every controller instance.
@@ -782,11 +787,6 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 					.addClass(selector)
 					.data("directSelector", "." + selector);
 			}
-
-			// !-- FOUNDRY HACK --! //
-			// Added defaultOptions as an alternative to defaults
-			var instanceOptions = instance.options
-								= extend(true, {}, Class.defaults, Class.defaultOptions, options);
 
 			// !-- FOUNDRY HACK --! //
 			// Augment selector properties into selector functions.
