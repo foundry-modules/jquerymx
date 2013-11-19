@@ -746,6 +746,8 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 				Class     = instance[STR_CONSTRUCTOR],
 				prototype = instance[STR_PROTOTYPE];
 
+			var _fullName = Class._fullName;
+			
 			// !-- FOUNDRY HACK --! //
 			// Unique id for every controller instance.
 			instance.instanceId = $.uid(_fullName + '_');
@@ -771,8 +773,6 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 				// Extend the properties of the prototype object onto the instance.
 				extend(true, instance, prototype);
 			}
-
-			var _fullName = Class._fullName;
 
 			// !-- FOUNDRY HACK --! //
 			// Use _fullName instead
