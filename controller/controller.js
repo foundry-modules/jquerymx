@@ -1098,7 +1098,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			if (!el) return;
 
 			var event = $.Event(name);
-				el.trigger.apply(el, [event].concat($.makeArray(arguments).slice(1)));
+				el.triggerHandler.apply(el, [event].concat($.makeArray(arguments).slice(1)));
 
 			return event;
 		},
