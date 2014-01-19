@@ -747,7 +747,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 				prototype = instance[STR_PROTOTYPE];
 
 			var _fullName = Class._fullName;
-			
+
 			// !-- FOUNDRY HACK --! //
 			// Unique id for every controller instance.
 			instance.instanceId = $.uid(_fullName + '_');
@@ -760,7 +760,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			// Convert HTML element into a jQuery element
 			// and store it inside instance.element.
 			var element = instance.element
-						= $(elem);												
+						= $(elem);
 
 			// !-- FOUNDRY HACK --! //
 			// Execute factory function if exists, extends the properties
@@ -811,8 +811,14 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 							var elements = instance.element.find(selector);
 
-							if (filter) {
+							if ($.isString(filter)) {
 								elements = elements.filter(filter);
+							}
+
+							if ($.isPlainObject(filter)) {
+								$.each(filter, function(key, val){
+									elements = elements.filterBy(key, val);
+								});
 							}
 
 							return elements;
@@ -838,6 +844,10 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 							}
 
 							return (arguments.length) ? cssRule.css.apply(cssRule, arguments) : cssRule;
+						};
+
+						selectorFunc.of = function(el) {
+							return $(el).parents(selector).eq(0);
 						};
 
 						return selectorFunc;
@@ -901,7 +911,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			var __init = instance.init || $.noop;
 
 			// !-- FOUNDRY HACK --! //
-			// Trigger init event when controller is created.		
+			// Trigger init event when controller is created.
 			instance.init = function(){
 				instance.init = __init;
 				result = __init.apply(instance, arguments);
@@ -1247,7 +1257,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 		 *
 		 */
 		destroy: function() {
-			
+
 			if ( this._destroyed ) {
 				return;
 			}
@@ -1352,7 +1362,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			});
 
 			return instances;
-		},		
+		},
 
 		// addPlugin(name, object, [options]);
 		// The object should consist of a method called destroy();
@@ -1686,7 +1696,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			this.each(function(){
 
 				// Do not add controller on script node or non-element nodes.
-				if (this.nodeType!==1 || this.nodeName=="SCRIPT") return;				
+				if (this.nodeType!==1 || this.nodeName=="SCRIPT") return;
 
 				// Just return existing instance
 				var existingInstance = $(this).controller(controller);
