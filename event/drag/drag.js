@@ -442,7 +442,7 @@ steal('jquery/event', 'jquery/lang/vector', 'jquery/event/livehack',function($) 
 		ghost: function( loc ) {
 			// create a ghost by cloning the source element and attach the clone to the dom after the source element
 			var ghost = this.movingElement.clone().css('position', 'absolute');
-			(loc ? $(loc) : this.movingElement).after(ghost);
+			loc ? $(loc).append(ghost) : this.movingElement.after(ghost);
 			ghost.width(this.movingElement.width()).height(this.movingElement.height());
 			// put the ghost in the right location ...
 			ghost.offset(this.movingElement.offset())
