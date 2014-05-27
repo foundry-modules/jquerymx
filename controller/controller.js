@@ -2,7 +2,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 	// ------- HELPER FUNCTIONS  ------
 
 	// Binds an element, returns a function that unbinds
-	var bind = function( el, ev, callback ) {
+	var bind = function( el, ev, callback, eventData ) {
 		var wrappedCallback,
 			binder = el.bind && el.unbind ? el : $(isFunction(el) ? [el] : el);
 		//this is for events like >click.
@@ -14,7 +14,13 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 				}
 			};
 		}
-		binder.bind(ev, wrappedCallback || callback);
+		// !-- FOUNDRY HACK --! //
+		// Support for passing event data
+		if (eventData) {
+			binder.bind(ev, eventData, wrappedCallback || callback);
+		} else {
+			binder.bind(ev, wrappedCallback || callback);
+		}
 		// if ev name has >, change the name and bind
 		// in the wrapped callback, check that the element matches the actual element
 		return function() {
@@ -36,7 +42,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 		slice = Array[STR_PROTOTYPE].slice,
 
 		// Binds an element, returns a function that unbinds
-		delegate = function( el, selector, ev, callback ) {
+		delegate = function( el, selector, ev, callback, eventData ) {
 
 			// !-- FOUNDRY HACK --! //
 			// Make event delegation work with direct child selector
@@ -45,7 +51,14 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			}
 
 			var binder = el.delegate && el.undelegate ? el : $(isFunction(el) ? [el] : el)
-			binder.delegate(selector, ev, callback);
+
+			// !-- FOUNDRY HACK --! //
+			// Support for passing event data
+			if (eventData) {
+				binder.delegate(selector, ev, eventData, callback);
+			} else {
+				binder.delegate(selector, ev, callback);
+			}
 
 			return function() {
 				binder.undelegate(selector, ev, callback);
@@ -54,13 +67,22 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 		},
 
 		// calls bind or unbind depending if there is a selector
-		binder = function( el, ev, callback, selector ) {
-			return selector ? delegate(el, selector, ev, callback) : bind(el, ev, callback);
+		binder = function( el, ev, callback, selector, eventData ) {
+			// !-- FOUNDRY HACK --! //
+			// Support for passing event data
+			return selector ? delegate(el, selector, ev, callback, eventData) : bind(el, ev, callback, eventData);
 		},
 
 		// moves 'this' to the first argument, wraps it with jQuery if it's an element
 		shifter = function shifter(context, name) {
-			var method = typeof name == "string" ? context[name] : name;
+			var method = typeof name == "string" ? (context[name] : name;
+
+			// !-- FOUNDRY HACK --! //
+			// Support for passing event data
+			if (isArray(method) && isFunction(method[1])) {
+				method = method[1];
+			}
+
 			return function() {
 				context.called = name;
     			return method.apply(context, [this.nodeName ? $(this) : this].concat( slice.call(arguments, 0) ) );
@@ -488,11 +510,19 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			// calculate and cache actions
 			this.actions = {};
 
+			// !-- FOUNDRY HACK --! //
+			// Support for handlers that also pass in event data
 			for (funcName in prototype) {
-				if (funcName == 'constructor' || !isFunction(prototype[funcName]) ) {
-					continue;
-				}
-				if ( this._isAction(funcName) ) {
+
+				if (funcName=='constructor') continue;
+
+				if (this._isAction(funcName)) {
+
+					var method   = prototype[funcName],
+						isMethod = isFunction(method) || (isArray(method) && isFunction(method[1]));
+
+					if (!isMethod) continue;
+
 					this.actions[funcName] = this._action(funcName);
 				}
 			}
@@ -1563,10 +1593,19 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 	//unbinds when called.
 	//the basic processor that binds events
 	basicProcessor = function( el, event, selector, methodName, controller ) {
-		return binder(el, event, shifter(controller, methodName), selector);
+
+		// !-- FOUNDRY HACK --! //
+		// Support for passing event data
+
+		var method = controller[methodName],
+			eventData;
+
+		if (isArray(method) && isFunction(method[1])) {
+			eventData = method[0];
+		}
+
+		return binder(el, event, shifter(controller, methodName), selector, eventData);
 	};
-
-
 
 
 	//set common events to be processed as a basicProcessor
