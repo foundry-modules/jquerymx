@@ -75,7 +75,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 		// moves 'this' to the first argument, wraps it with jQuery if it's an element
 		shifter = function shifter(context, name) {
-			var method = typeof name == "string" ? (context[name] : name;
+			var method = typeof name == "string" ? context[name] : name;
 
 			// !-- FOUNDRY HACK --! //
 			// Support for passing event data
