@@ -831,6 +831,8 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 				// Augmented selector function
 				if (isString(val)) {
 
+					var selectorFuncExtension = instance[key];
+
 					instance[key] = (function(instance, selector, funcName) {
 
 						// Selector shorthand for controllers
@@ -879,6 +881,10 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 						selectorFunc.of = function(el) {
 							return $(el).parents(selector).eq(0);
 						};
+
+						if ($.isPlainObject(selectorFuncExtension)) {
+							$.extend(selectorFunc, selectorFuncExtension);
+						}
 
 						return selectorFunc;
 
@@ -1422,7 +1428,12 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			if (!isFunction(plugin) && !isPluginInstance) return;
 
 			// Normalize plugin options
-			options = $.extend(true, {element: this.element}, options, ((this.options.plugin || {})[name] || {}));
+			var pluginOptions =
+				this.Class.pluginExtendsInstance ?
+					this.options[name] :
+					(this.options.plugin || {})[name];
+
+			options = $.extend(true, {element: this.element}, options, pluginOptions);
 
 			// Determine plugin type
 			var type =
@@ -1468,6 +1479,11 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 			// Register plugin
 			this.pluginInstances[name] = pluginInstance;
+
+			// Also extend instance with a property point to the plugin
+			if (this.Class.pluginExtendsInstance) {
+				this[name] = pluginInstance;
+			}
 
 			// Host controller should also have a way to listen back to the child controller
 			if (type!=="function") {
