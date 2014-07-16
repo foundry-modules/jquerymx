@@ -1814,4 +1814,17 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 	});
 
+	// !-- FOUNDRY HACK --! //
+	// Add support for augmented selector function on jQuery's DOM traversal/filtering methods.
+	(function(){
+	var fns = ["children", "closest", "find", "next", "nextAll", "nextUntil", "parent", "parents", "parentsUntil", "prev", "prevAll", "prevUntil", "siblings", "eq", "filter", "first", "has", "is", "last", "not"], _fns = {}, fn;
+	while (fn = fns.shift()) {
+	    $.fn[fn] = (function(fn) {
+	        return function(obj) {
+	            return _fns[fn].apply(this, $.has(obj, "of") ? [obj.selector] : arguments);
+	        }
+	    })(fn);
+	}
+	})();
+
 });
