@@ -413,6 +413,30 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 				return;
 			}
 
+			// !-- FOUNDRY HACK --! //
+			// Added support for expandable elements.
+			var elements = this.elements || [],
+				i = 0,
+				defaults = this.defaults;
+
+			while (element = elements[i++]) {
+
+			    var start  = element.indexOf("{"),
+				    end    = element.indexOf("}"),
+				    length = element.length,
+				    prefix = element.slice(0, start),
+				    suffix = element.slice(end + 1),
+				    names  = element.slice(start + 1, end).split("|"),
+				    j = 0;
+
+					while (name = names[j++]) {
+						var prop = "{" + name + "}";
+
+						!$.has(defaults, prop) &&
+							(defaults[prop] = prefix + name + suffix);
+					}
+			}
+
 			// cache the underscored names
 			this._fullName = underscoreAndRemoveController(this.fullName);
 			this._shortName = underscoreAndRemoveController(this.shortName);
