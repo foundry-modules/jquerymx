@@ -430,7 +430,8 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 				    j = 0;
 
 					while (name = names[j++]) {
-						var prop = "{" + name + "}";
+
+						var prop = "{" + $.camelize(name) + "}";
 
 						!$.has(defaults, prop) &&
 							(defaults[prop] = prefix + name + suffix);
