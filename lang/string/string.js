@@ -82,7 +82,8 @@ steal('jquery').then(function($) {
 		 * </ul>
 		 *
 		 */
-		str = $.String = $.extend( $.String || {} , {
+
+		str = $.String = $.extend($.String || {} , {
 
 
 			/**
@@ -236,4 +237,8 @@ steal('jquery').then(function($) {
 			},
 			_regs : regs
 		});
+
+	// !-- FOUNDRY HACK --! //
+	// Expose string methods to $.
+	$.extend($, $.String);
 });
