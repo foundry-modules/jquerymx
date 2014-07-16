@@ -903,6 +903,10 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 							return (arguments.length) ? cssRule.css.apply(cssRule, arguments) : cssRule;
 						};
 
+						selectorFunc.inside = function(el) {
+							return $(el).find(selector);
+						};
+
 						selectorFunc.of = function(el) {
 							return $(el).parents(selector).eq(0);
 						};
