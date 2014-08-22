@@ -240,5 +240,5 @@ steal('jquery').then(function($) {
 
 	// !-- FOUNDRY HACK --! //
 	// Expose string methods to $.
-	$.extend($, $.String);
+	$.extend($, str);
 });
