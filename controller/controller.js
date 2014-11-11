@@ -846,7 +846,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			// !-- FOUNDRY HACK --! //
 			// Augment selector properties into selector functions.
 			// The rest are passed in as controller properties.
-			for (name in instanceOptions) {
+			for (var name in instanceOptions) {
 
 				if (!name.match(/^\{.+\}$/)) continue;
 
