@@ -861,6 +861,8 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 			// !-- FOUNDRY HACK --! //
 			// Augment selector properties into selector functions.
 			// The rest are passed in as controller properties.
+			instance.selectors = {};
+
 			for (var name in instanceOptions) {
 
 				if (!name.match(/^\{.+\}$/)) continue;
@@ -873,7 +875,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 
 					var selectorFuncExtension = instance[key];
 
-					instance[key] = (function(instance, selector, funcName) {
+					instance[key] = instance.selectors[key] = (function(instance, selector, funcName) {
 
 						// Selector shorthand for controllers
 						selector = /^(\.|\#)$/.test(selector) ? selector + funcName : selector;
@@ -881,7 +883,7 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 						// Create selector function
 						var selectorFunc = function(filter) {
 
-							var elements = instance.element.find(selector);
+							var elements = (selectorFunc.baseElement || instance.element).find(selector);
 
 							if ($.isString(filter)) {
 								elements = elements.filter(filter);
