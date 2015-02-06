@@ -429,9 +429,24 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 				    names  = element.slice(start + 1, end).split("|"),
 				    j = 0;
 
-					while (name = names[j++]) {
+				    // "^width [data-eb{label|slider}]" turns into
+				    // widthLabel  => [data-eb-label]
+				    // widthSlider => [data-eb-slider]
 
-						var prop = "{" + $.camelize(name) + "}";
+				    // "^width [data-eb".match(/^\^(\S*)\s(.*)/);
+				    // 0 ==> "^width [data-eb"
+				    // 1 ==> "width",
+				    // 2 ==> "[data-eb"
+				    var parts = prefix.match(/^\^(\S*)\s(.*)/),
+				    	propPrefix = "";
+
+				    if (parts) {
+				    	propPrefix = parts[1] + "-";
+				    	prefix = parts[2];
+				    }
+
+					while (name = names[j++]) {
+						var prop = "{" + $.camelize(propPrefix + name) + "}";
 
 						!$.has(defaults, prop) &&
 							(defaults[prop] = prefix + name + suffix);
@@ -911,6 +926,19 @@ steal('jquery/class', 'jquery/lang/string', 'jquery/event/destroyed', function($
 							return $(el).parents(selector).eq(0);
 						};
 
+				        selectorFunc.under = function(el) {
+
+				            var nodes = [];
+
+				            selectorFunc().each(function(){
+				                if ($(this).parents().filter(el).length) {
+				                    nodes.push(this);
+				                }
+				            });
+
+				            return $(nodes);
+				        };
+				        
 						if ($.isPlainObject(selectorFuncExtension)) {
 							$.extend(selectorFunc, selectorFuncExtension);
 						}
