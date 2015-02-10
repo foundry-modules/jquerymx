@@ -13,6 +13,13 @@ steal('jquery/dom').then(function($){
 	 */
 	var oldClosest = $.fn._closest = $.fn.closest;
 	$.fn.closest = function(selectors, context){
+
+		// FOUNDRY_HACK
+		// If a jQuery or node element was passed in, use original closest method.
+		if (selectors instanceof $ || $.isElement(selectors)) {
+			return oldClosest.call(this, arguments);
+		}
+
 		var rooted = {}, res, result, thing, i, j, selector, rootedIsEmpty = true, selector, selectorsArr = selectors;
 		if(typeof selectors == "string") selectorsArr = [selectors];
 
